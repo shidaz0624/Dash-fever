@@ -19,13 +19,13 @@ public class Hero : CharaterBase {
 
     public override void Update () 
     {
-        base.Update();
-        this.ProcessInput();
     }
 
     public void FixedUpdate()
     {
         m_Dash.m_DashClass.Update();
+        base.Update();
+        this.ProcessInput();
     }
 
     private void OnDestory()

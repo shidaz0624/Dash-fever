@@ -26,17 +26,22 @@ public class Dash
     public void SetDashValue(Vector2 _V2 , float _fTime)
     {        
         m_DashV2 = _V2;
-        m_fTime  = _fTime     ;
+        m_fTime  = _fTime;
+        m_Time = 0;
 //        this.CalculateValue();
-        TriggerFin();
+        SetFin(false);
     }
 
-    private void TriggerFin()
+    private void SetFin(bool _isFin)
     {
-        m_isFin = !m_isFin;
-        Vector2 _v2 = Vector2.zero;
-        if (OnDash != null)
-            OnDash(_v2);
+        m_isFin = _isFin;
+        if (m_isFin)
+        {
+            Debug.LogError("Set Zero");
+            Vector2 _v2 = Vector2.zero;
+            if (OnDash != null)
+                OnDash(_v2);
+        }
     }
 
     private void CalculateValue()
@@ -57,7 +62,7 @@ public class Dash
         if (m_Time >= 1)
         {
             m_Time = 0 ;
-            TriggerFin();
+            SetFin(true);
         }
             
         if (OnDash != null)
