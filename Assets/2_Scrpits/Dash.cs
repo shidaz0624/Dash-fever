@@ -15,10 +15,11 @@ public class Dash
     public delegate void CharaterDash(Vector2 _V2);
     public CharaterDash OnDash;
 
-    private int m_iFramePreS = 30;
+    public delegate void CharaterDashFin();
+    public CharaterDashFin OnDashFin;
+
     private Vector2 m_DashV2 = Vector2.zero;
     private float   m_fTime  = 0f;
-    private Vector2 m_DashV2PerFrame = Vector2.zero;
     private bool m_isFin = true;
 
     private float m_Time = 0;
@@ -37,10 +38,11 @@ public class Dash
         m_isFin = _isFin;
         if (m_isFin)
         {
-            Debug.LogError("Set Zero");
             Vector2 _v2 = Vector2.zero;
             if (OnDash != null)
                 OnDash(_v2);
+            if (OnDashFin != null)
+                OnDashFin();
         }
     }
 

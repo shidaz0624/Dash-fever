@@ -27,21 +27,24 @@ public class CharaterBase : MonoBehaviour {
     protected Rigidbody2D m_Rigidbody2D = null;
 	// Use this for initialization
     public Animator m_Animator = null;
-
+    public HitCase m_HitCase = new HitCase();
     private int m_iFlip = 1; // -1 , 1
     private SpriteRenderer m_SpriteRenderer = null;
-    public virtual void Start () {
+
+
+    protected virtual void Start () {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         m_SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
         m_Animator = GetComponentInChildren<Animator>();
 	}
 	
 	// Update is called once per frame
-    public virtual void Update () {
+    protected virtual void Update () {
         m_Ground.m_isGround = m_Ground.IsGround;
+        m_Animator.SetBool("isGround" , m_Ground.m_isGround);
 	}
 
-    public void Move(Vector2 _MoveV2)
+    protected void Move(Vector2 _MoveV2)
     {
         transform.Translate(_MoveV2);
     }
@@ -57,5 +60,41 @@ public class CharaterBase : MonoBehaviour {
         m_iFlip = (m_iFlip == 1)? -1 : 1;
         m_SpriteRenderer.flipX = (m_iFlip == 1)? false : true;
         return m_iFlip;
+    }
+
+    protected void SetHitCase( bool _isEnabled , int _iDamage = 0, Vector2  _ForceV2 = default(Vector2))
+    {
+        m_HitCase.m_isEnabled = _isEnabled;
+        Debug.LogError("Set " + _isEnabled);
+        if (_isEnabled)
+        {
+            m_HitCase.m_iDamage = _iDamage;
+            m_HitCase.m_ForceV2 = _ForceV2;
+        }
+    }
+
+    protected void ProcessFlip(float _fHorizontal)
+    {
+        if (_fHorizontal != 0)
+        {
+            if (_fHorizontal > 0 && GetFlip < 0 )
+            {
+                FlipTrigger();
+            }
+            else if (_fHorizontal < 0 && GetFlip > 0)
+            {
+                FlipTrigger();
+            }
+        }
+    }
+
+    protected void OnDash(Vector2 _V2)
+    {
+        m_Rigidbody2D.velocity = _V2;
+    }
+
+    protected void OnDashFin()
+    {
+        SetHitCase(false);
     }
 }

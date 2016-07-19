@@ -52,6 +52,8 @@
      <Compile Include="Assets\2_Scrpits\Hero\Hero.cs" />
      <Compile Include="Assets\2_Scrpits\Hero\Hero_Mono.cs" />
      <Compile Include="Assets\2_Scrpits\SmoothCamera.cs" />
+     <Compile Include="Assets\SpriteMaskEffectExample.cs" />
+     <None Include="Assets\SpriteMaskEffect.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity5/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
