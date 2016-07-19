@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{FD6BD9BB-F01A-73F8-AD0C-C3D76A6D4502}") = "DashFever", "Assembly-CSharp.csproj", "{0CE7DB05-5B83-6D09-143E-BEE2258DC951}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0CE7DB05-5B83-6D09-143E-BEE2258DC951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CE7DB05-5B83-6D09-143E-BEE2258DC951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CE7DB05-5B83-6D09-143E-BEE2258DC951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CE7DB05-5B83-6D09-143E-BEE2258DC951}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
