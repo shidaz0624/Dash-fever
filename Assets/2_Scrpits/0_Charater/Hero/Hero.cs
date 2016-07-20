@@ -63,7 +63,7 @@ public class Hero : CharaterBase {
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
-            SetHitCase(true , 50 , m_Dash.m_DashForceV2);
+            SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
         }            
     }   
 
@@ -78,7 +78,10 @@ public class Hero : CharaterBase {
         if ( other.gameObject.tag == "Enemy" && m_HitCase.m_isEnabled)
         {
             Debug.LogError("qq");
-            other.GetComponent<Rigidbody2D>().velocity =  m_Rigidbody2D.velocity / 30 ;
+            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage , m_Rigidbody2D.velocity / 30 );
+
+
+//            other.GetComponent<Rigidbody2D>().velocity =  m_Rigidbody2D.velocity / 30 ;
         }
     }
 

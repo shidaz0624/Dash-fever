@@ -45,15 +45,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\2_Scrpits\CurveDataCenter.cs" />
-     <Compile Include="Assets\2_Scrpits\Dash.cs" />
-     <Compile Include="Assets\2_Scrpits\Hero\Ai_Mono.cs" />
-     <Compile Include="Assets\2_Scrpits\Hero\CharaterBase.cs" />
-     <Compile Include="Assets\2_Scrpits\Hero\Hero.cs" />
-     <Compile Include="Assets\2_Scrpits\Hero\Hero_Mono.cs" />
-     <Compile Include="Assets\2_Scrpits\SmoothCamera.cs" />
-     <Compile Include="Assets\SpriteMaskEffectExample.cs" />
-     <None Include="Assets\SpriteMaskEffect.shader" />
+     <Compile Include="Assets\2_Scrpits\0_Charater\Hero\CharaterBase.cs" />
+     <Compile Include="Assets\2_Scrpits\0_Charater\Hero\Hero.cs" />
+     <Compile Include="Assets\2_Scrpits\0_Charater\Skill\Dash.cs" />
+     <Compile Include="Assets\2_Scrpits\1_System\GUIMonoSystem.cs" />
+     <Compile Include="Assets\2_Scrpits\1_System\MainGameHost.cs" />
+     <Compile Include="Assets\2_Scrpits\2_Unit\CurveDataCenter.cs" />
+     <Compile Include="Assets\2_Scrpits\2_Unit\SmoothCamera.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity5/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
