@@ -17,22 +17,42 @@ public class GUIMonoSystem : MonoBehaviour {
         }
     }
 
-    public HeroUI m_HeroUI = null;
+    public HeroUI m_HeroUI = new HeroUI();
 
-    private void Awake()
+    public void InitUISystem()
     {
-        InitUISystem();
+    
     }
 
-    private void InitUISystem()
+    public void UpdateHeroHP(int _iHP)
     {
-        m_HeroUI = new HeroUI();
+        m_HeroUI.m_HPLabel.text = "HP : " + _iHP.ToString();
+    }
+
+    public void UpdateHeroAP(int _iAP)
+    {
+        m_HeroUI.m_APLabel.text = "AP : " + _iAP.ToString();
+    }
+
+    public void UpdateHeroGUI(int _iHP , int _iAP)
+    {
+        m_HeroUI.m_HPLabel.text = "HP : " + _iHP.ToString();
+        m_HeroUI.m_APLabel.text = "AP : " + _iAP.ToString();
     }
 
 
-    public void SetHealthPoint(int _iValue)
+    private void Start()
     {
-        
+//        InvokeRepeating("CreatEnemy" , 0.5f , 0.5f);
     }
+    public GameObject m_Enemy = null;
+    public void CreatEnemy()
+    {
+        Vector3 _v3 = new Vector3( UnityEngine.Random.Range( -30 , 30  ) , 0 , 0 );
+        GameObject _e = Instantiate( m_Enemy );
+
+        _e.transform.localPosition = _v3;
+    }
+
 
 }

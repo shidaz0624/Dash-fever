@@ -23,7 +23,16 @@ public class Hero : CharaterBase {
     protected override void  Start () 
     {       
         base.Start();
-    }        
+    }
+        
+    protected override void Update ()
+    {
+        base.Update();
+        m_CharaterParameter.SetHPAndAPByDelta
+        ( m_RecoverParameter.GetHPRecoverValue , m_RecoverParameter.GetAPRecoverValue );
+        MainGameHost.MoroRef.UpdateHeroHPAndAP
+            ( (int)m_CharaterParameter.m_fHealthPoint , (int)m_CharaterParameter.m_fActionPoint );
+    }
 
     protected void FixedUpdate()
     {
@@ -60,28 +69,22 @@ public class Hero : CharaterBase {
             m_Rigidbody2D.AddForce( new Vector2( 0 , m_iJumpPower));
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.Return))
         {
-            m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
-            SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
+            if (m_CharaterParameter.m_fActionPoint >= 20)
+            {
+                m_CharaterParameter.m_fActionPoint -= 20;
+                m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
+                SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
+            }
         }            
     }   
-
-
-
+        
     void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject.tag == "Enemy")
-        {
-            Debug.LogError("Ya" + m_HitCase.m_isEnabled);
-        }
+    {        
         if ( other.gameObject.tag == "Enemy" && m_HitCase.m_isEnabled)
         {
-            Debug.LogError("qq");
-            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage , m_Rigidbody2D.velocity / 30 );
-
-
-//            other.GetComponent<Rigidbody2D>().velocity =  m_Rigidbody2D.velocity / 30 ;
+            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip , m_Rigidbody2D.velocity / 10 );
         }
     }
 
