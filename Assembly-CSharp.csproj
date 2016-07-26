@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\2_Scrpits\0_Charater\Door.cs" />
      <Compile Include="Assets\2_Scrpits\0_Charater\Enemy.cs" />
      <Compile Include="Assets\2_Scrpits\0_Charater\Hero\CharaterBase.cs" />
      <Compile Include="Assets\2_Scrpits\0_Charater\Hero\Hero.cs" />

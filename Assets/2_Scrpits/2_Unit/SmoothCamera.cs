@@ -22,7 +22,7 @@ public class SmoothCamera : MonoBehaviour {
 		m_DistanceV3.x = m_DistanceV3.x * _fX ;
 		m_DistanceV3.z = 0;
 
-        transform.position += m_DistanceV3 * Time.fixedDeltaTime * 2f   ;
+        transform.position += m_DistanceV3 * Time.deltaTime * 2f   ;
 
 	}
 }

@@ -43,7 +43,7 @@ public class GUIMonoSystem : MonoBehaviour {
 
     private void Start()
     {
-//        InvokeRepeating("CreatEnemy" , 0.5f , 0.5f);
+        InvokeRepeating("CreatEnemy" , 1f , 1f);
     }
     public GameObject m_Enemy = null;
     public void CreatEnemy()

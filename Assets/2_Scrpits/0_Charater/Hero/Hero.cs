@@ -28,18 +28,18 @@ public class Hero : CharaterBase {
     protected override void Update ()
     {
         base.Update();
+        m_Dash.m_DashClass.Update();
+        this.ProcessInput();
+
         m_CharaterParameter.SetHPAndAPByDelta
         ( m_RecoverParameter.GetHPRecoverValue , m_RecoverParameter.GetAPRecoverValue );
         MainGameHost.MoroRef.UpdateHeroHPAndAP
             ( (int)m_CharaterParameter.m_fHealthPoint , (int)m_CharaterParameter.m_fActionPoint );
     }
 
-    protected void FixedUpdate()
-    {
-        m_Dash.m_DashClass.Update();
-        base.Update();
-        this.ProcessInput();
-    }
+//    protected void FixedUpdate()
+//    {
+//    }
 
     private void OnDestory()
     {
@@ -56,6 +56,7 @@ public class Hero : CharaterBase {
         this.ProcessFlip(_fHorizontal);
 
         Move(new Vector2(_fHorizontal , 0));
+
         if ( m_Ground.IsGround )
             m_Animator.SetFloat( "fHorizontal" , Mathf.Abs( _fOriginHorozontal ));
         else
@@ -84,6 +85,11 @@ public class Hero : CharaterBase {
     {        
         if ( other.gameObject.tag == "Enemy" && m_HitCase.m_isEnabled)
         {
+            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip , m_Rigidbody2D.velocity / 10 );
+        }
+        else if (other.gameObject.tag == "Door" && m_HitCase.m_isEnabled)
+        {
+            Debug.LogError("Hit Door");
             other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip , m_Rigidbody2D.velocity / 10 );
         }
     }

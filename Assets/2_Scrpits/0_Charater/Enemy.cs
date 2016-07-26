@@ -3,69 +3,94 @@ using System.Collections;
 
 public class Enemy : CharaterBase {
 
+    public DashCase m_Dash = new DashCase();
+    public Transform m_RightTag;
+    public Transform m_LeftTag;
+    public Transform m_Target;
+
+    protected void Awake()
+    {
+        m_Dash.m_DashClass.OnDash += OnDash;
+        m_Dash.m_DashClass.OnDashFin += OnDashFin;
+    }
+    private void OnDestory()
+    {
+        m_Dash.m_DashClass.OnDash -= OnDash;
+        m_Dash.m_DashClass.OnDashFin -= OnDashFin;
+    }
 	// Use this for initialization
     protected override void Start ()
     {
         base.Start ();
+        m_Target = GameObject.FindGameObjectWithTag("Player").transform;
     }
-    int i = 1;
+
 	// Update is called once per frame
     protected override void Update ()
     {
         base.Update ();
 
-    }
-    public Transform m_Right;
-    public Transform m_Left;
-    void FixedUpdate()
-    {
-        float _fHorizontal = .5f * Time.fixedDeltaTime * 10 ;
-        Transform _tf = (i > 0)? m_Right : m_Left; 
-//        Debug.LogError(_tf.gameObject.name);
-//        RaycastHit2D _Hit = Physics2D.Raycast( _tf.position , new Vector2( i , 0f ) , 2f);
-        RaycastHit2D[] _Hit = Physics2D.RaycastAll( _tf.position , new Vector2( i , 0f ) , 2f);
-        bool _isFlip = false;
-        for (int x = 0 ; x < _Hit.Length ; x++)
+        float _fHorizontal = 1f * Time.fixedDeltaTime * 10 ;
+
+        if (WallChecker)
+            FlipTrigger();
+
+        if ( Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < 4  )
         {
-        if (_Hit[x].collider != null)
-        {   
-            
-//            Debug.LogError("GOD!!!" + _Hit[x].transform.gameObject.name);
-            if ( _Hit[x].transform.gameObject.tag == "Ground")
+            if (m_Dash.m_DashClass.GetIsFin)
             {
-                i *= -1;
-                    Debug.LogError("FLIP!!!!! : " + i);
-                _isFlip = true;
-                    FlipTrigger();
+                m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
+                SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
             }
         }
+        else
+        {
+            Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+            Move(_v2);
+
+            if (Random.Range(0 , 100) < 1 && m_Ground.IsGround)
+            {
+                m_Rigidbody2D.AddForce(new Vector2(0 , 1300));
+            }
+
+            if (Random.Range(0 , 100) < 1 && m_Dash.m_DashClass.GetIsFin)
+            {
+                m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
+                SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
+            }
         }
-
-//        if (_fHorizontal != 0)
-//        {
-//            if (_fHorizontal > 0 && GetFlip < 0 || _isFlip)
-//            {
-//                FlipTrigger();
-//            }
-//            else if (_fHorizontal < 0 && GetFlip > 0 || _isFlip)
-//            {
-//                FlipTrigger();
-//            }
-//        }
-
-
-
-        Vector2 _v2 = new Vector2( _fHorizontal * i , 0);
-        Move(_v2);
+        m_Dash.m_DashClass.Update();
+    }
+   
+    private bool WallChecker
+    {
+        get
+        {
+            bool _isFlip = false;            
+            Transform _tf = (GetFlip > 0)? m_RightTag : m_LeftTag; 
+            RaycastHit2D[] _Hit = Physics2D.RaycastAll( _tf.position , new Vector2( GetFlip , 0f ) , 2f);
+            for (int x = 0 ; x < _Hit.Length ; x++)
+            {
+                if (_Hit[x].collider != null)
+                {                   
+                    if ( _Hit[x].transform.gameObject.tag == "Ground")
+                    {
+                        _isFlip = true;
+                    }
+                }
+            }
+            return _isFlip;
+        }
     } 
 
     void OnTriggerEnter2D(Collider2D other)
     {                
 //        if ( other.gameObject.tag == "Player")
-//            Debug.LogError("Fuck");
-//        if ( other.gameObject.tag == "Player" && m_HitCase.m_isEnabled)
-//        {
-//            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage , m_Rigidbody2D.velocity * 5 );
-//        }
+//            Debug.LogError("Enemy hit Player!!");
+        if ( other.gameObject.tag == "Player" && m_HitCase.m_isEnabled)
+        {
+            Debug.Log("Enemy Hit Player");
+            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip , m_Rigidbody2D.velocity / 10 );
+        }
     }
 }

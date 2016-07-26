@@ -24,6 +24,11 @@ public class Dash
 
     private float m_Time = 0;
 
+    public bool GetIsFin
+    {
+        get{ return m_isFin; }
+    }
+
     public void SetDashValue(Vector2 _V2 , float _fTime)
     {        
         m_DashV2 = _V2;
@@ -56,7 +61,7 @@ public class Dash
     {
         if (m_isFin) return;
 
-        m_Time += Time.fixedDeltaTime / m_fTime;
+        m_Time += Time.deltaTime / m_fTime;
         float _fValue =  CurveDataCenter.MonoRef.m_CurveZeroToOne.Evaluate(m_Time);
 
         Vector2 _v2 = m_DashV2 * _fValue;

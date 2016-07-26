@@ -107,7 +107,7 @@ public class CharaterBase : MonoBehaviour {
     protected virtual void Start () {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         m_SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        m_Animator = GetComponentInChildren<Animator>();       
+        m_Animator = GetComponentInChildren<Animator>();
 	}
 	
 	// Update is called once per frame
@@ -125,7 +125,7 @@ public class CharaterBase : MonoBehaviour {
 	}
 
     private void StartDeathEffect()
-    {
+    {        
         m_DeathParticle.Play();
 //        m_DeathParticle.externalForces = new ()
         m_CharaterParameter.m_isDeath = true;
@@ -149,6 +149,7 @@ public class CharaterBase : MonoBehaviour {
         }
     }
 
+    private CharacterController m_CharacterController;
     /// <summary>
     /// 角色移動
     /// </summary>   
@@ -210,7 +211,7 @@ public class CharaterBase : MonoBehaviour {
     /// <summary>
     /// 角色生命 + Delta
     /// </summary>
-    private void ProcessHealthPoint(int _iDelta)
+    protected void ProcessHealthPoint(int _iDelta)
     {
         m_CharaterParameter.m_fHealthPoint += _iDelta;
         if(m_CharaterParameter.m_fHealthPoint <= 0)
@@ -220,7 +221,7 @@ public class CharaterBase : MonoBehaviour {
         }
     }
 
-    private void ProcessGetDamageEffect(int _iSide)
+    protected void ProcessGetDamageEffect(int _iSide)
     {
         if (_iSide < 0)
         {
@@ -237,7 +238,7 @@ public class CharaterBase : MonoBehaviour {
     /// <summary>
     /// 角色受到傷害
     /// </summary>
-    public void GetDamage( int _iDamage , int _iSide , Vector2 _ForceV2 = default(Vector2) )
+    public virtual void GetDamage( int _iDamage , int _iSide , Vector2 _ForceV2 = default(Vector2) )
     {
         ProcessHealthPoint( - _iDamage );
         ProcessGetDamageEffect(_iSide);
