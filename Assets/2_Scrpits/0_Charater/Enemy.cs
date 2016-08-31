@@ -23,28 +23,47 @@ public class Enemy : CharaterBase {
     {
         base.Start ();
         m_Target = GameObject.FindGameObjectWithTag("Player").transform;
+        if (m_Target == null)
+            enabled = false;
     }
 
 	// Update is called once per frame
     protected override void Update ()
     {
         base.Update ();
+        if (m_CharaterParameter.m_isDeath) return;
 
-        float _fHorizontal = 1f * Time.fixedDeltaTime * 10 ;
+        float _fHorizontal = 0f;
+
+        bool _isDefence = true;
+        if (_isDefence)
+        {
+            m_DefenceCase.IsDefence = _isDefence;
+            m_DefenceCase.SetDefenceEffect(_isDefence);
+            m_Dash.m_DashClass.Update();
+            return;
+        }
+            
+
+
 
         if (WallChecker)
             FlipTrigger();
 
+
+        _fHorizontal = 1f * Time.fixedDeltaTime * 10 ;
+
+        //
         if ( Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < 4  )
         {
-            if (m_Dash.m_DashClass.GetIsFin)
+            if (m_Dash.m_DashClass.GetIsFin && Random.Range(0 , 10) < 1)
             {
                 m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
                 SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
             }
         }
         else
-        {
+        {          
             Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
             Move(_v2);
 
@@ -82,6 +101,20 @@ public class Enemy : CharaterBase {
             return _isFlip;
         }
     } 
+
+    public override void GetDamage (int _iDamage, int _iSide, Vector2 _ForceV2)
+    {
+        base.GetDamage (_iDamage, _iSide, _ForceV2);
+
+        Invoke("Test" , 1f);
+    }
+
+    private void Test()
+    {
+        FlipTrigger();
+        m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
+        SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
+    }
 
     void OnTriggerEnter2D(Collider2D other)
     {                

@@ -29,12 +29,12 @@ public class Door : CharaterBase {
 
     }   
 
-    public override void GetDamage (int _iDamage, int _iSide, Vector2 _ForceV2)
-    {
-        Debug.LogError("Door get Damage");
-        ProcessHealthPoint( - _iDamage );
-        ProcessGetDamageEffect(_iSide);
-    }
+//    public override void GetDamage (int _iDamage, int _iSide, Vector2 _ForceV2)
+//    {
+//        Debug.LogError("Door get Damage");
+//        ProcessHealthPoint( - _iDamage );
+//        ProcessGetDamageEffect(_iSide);
+//    }
 
     void FixedUpdate()
     {        

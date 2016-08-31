@@ -4,14 +4,16 @@ using UnityEngine.UI;
 using System.Collections;
 
 
-public class GUIMonoSystem : MonoBehaviour {
+public class PlayerParameterGUI : MonoBehaviour {
 
     [Serializable]
     public class HeroUI
     {
         public  Text    m_HPLabel   = null;
         public  Text    m_APLabel   = null;
-        public HeroUI()
+        public  Image   m_HPBar     = null;
+        public  Image   m_APBar     = null;
+        public  HeroUI()
         {
             
         }
@@ -27,23 +29,27 @@ public class GUIMonoSystem : MonoBehaviour {
     public void UpdateHeroHP(int _iHP)
     {
         m_HeroUI.m_HPLabel.text = "HP : " + _iHP.ToString();
+        m_HeroUI.m_HPBar.fillAmount = (float)_iHP / 5f;
     }
 
     public void UpdateHeroAP(int _iAP)
     {
         m_HeroUI.m_APLabel.text = "AP : " + _iAP.ToString();
+        m_HeroUI.m_APBar.fillAmount = (float)_iAP / 500f;
     }
 
     public void UpdateHeroGUI(int _iHP , int _iAP)
     {
         m_HeroUI.m_HPLabel.text = "HP : " + _iHP.ToString();
         m_HeroUI.m_APLabel.text = "AP : " + _iAP.ToString();
+        m_HeroUI.m_HPBar.fillAmount = (float)_iHP / 5f;
+        m_HeroUI.m_APBar.fillAmount = (float)_iAP / 500f;
     }
 
 
     private void Start()
     {
-        InvokeRepeating("CreatEnemy" , 1f , 1f);
+//        InvokeRepeating("CreatEnemy" , 1f , 2f);
     }
     public GameObject m_Enemy = null;
     public void CreatEnemy()

@@ -6,7 +6,7 @@ public class MainGameHost : MonoBehaviour {
     private static MainGameHost m_MonoRef   = null;
     public  static MainGameHost MoroRef     {get{return m_MonoRef;}}
 
-    public GUIMonoSystem m_GUIMonoSystem = null;
+    public MainGUISystem m_GUIMainSystem = null;
 
     void Awake()
     {
@@ -26,24 +26,24 @@ public class MainGameHost : MonoBehaviour {
 
     private void InitAllSystem()
     {
-        m_GUIMonoSystem.InitUISystem();
+        m_GUIMainSystem.InitUISystem();
     }
 
-    #region ============== GUIMonoSystem ==============
+    #region ============== GUIMainSystem ==============
 
     public void UpdateHeroHPAndAP(int _iHP , int _iAP)
     {
-        m_GUIMonoSystem.UpdateHeroGUI(_iHP , _iAP);
+        m_GUIMainSystem.UpdateHeroGUI(_iHP , _iAP);
     }
 
     public void UpdateHeroHP(int _iHP)
     {
-        m_GUIMonoSystem.UpdateHeroHP(_iHP);
+        m_GUIMainSystem.UpdateHeroHP(_iHP);
     }
 
     public void UpdateHeroAP(int _iAP)
     {
-        m_GUIMonoSystem.UpdateHeroAP(_iAP);
+        m_GUIMainSystem.UpdateHeroAP(_iAP);
     }        
 
     #endregion

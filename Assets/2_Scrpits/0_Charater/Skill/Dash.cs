@@ -15,12 +15,15 @@ public class Dash
     public delegate void CharaterDash(Vector2 _V2);
     public CharaterDash OnDash;
 
+    public delegate void CharaterDashStart();
+    public CharaterDashStart OnDashStart;
+
     public delegate void CharaterDashFin();
     public CharaterDashFin OnDashFin;
 
     private Vector2 m_DashV2 = Vector2.zero;
     private float   m_fTime  = 0f;
-    private bool m_isFin = true;
+    private bool    m_isFin = true;
 
     private float m_Time = 0;
 
@@ -34,7 +37,6 @@ public class Dash
         m_DashV2 = _V2;
         m_fTime  = _fTime;
         m_Time = 0;
-//        this.CalculateValue();
         SetFin(false);
     }
 
@@ -49,13 +51,18 @@ public class Dash
             if (OnDashFin != null)
                 OnDashFin();
         }
+        else
+        {
+            if (OnDashStart != null)
+                OnDashStart();
+        }
     }
 
     private void CalculateValue()
     {
-//        float _TatolFrame = m_iFramePreS * m_fTime;
-//        m_DashV2PerFrame =  m_TotalDashV2 / _TatolFrame;
     }
+
+
 
     public void Update()
     {

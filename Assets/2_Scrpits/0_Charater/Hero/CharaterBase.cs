@@ -1,87 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[System.Serializable]
-public class GroundCase
-{
-    public  Transform   m_GroundTag         = null; //角色偵測地板的射線起始點物件
-    public  LayerMask   m_GroundLayerMask;              //地板圖層
-    public  float       m_fGroundRay        = 0.2f;
-    public  bool        m_isGround          = false;
-    public bool IsGround
-    {
-        get {
-            
-        bool _isGround = Physics2D.OverlapCircle(m_GroundTag.position ,
-            m_fGroundRay ,
-            m_GroundLayerMask);
-            return _isGround;
-        }
-
-    }
-}
-
-[System.Serializable]
-public class CharaterParameter
-{
-    public  float   m_fHealthPoint  = 0f;
-    public  float   m_fActionPoint  = 0f;
-    public  bool    m_isDeath       = false;
-
-    public void SetHPAndAP(float _fHP , float _fAP)
-    {
-        m_fHealthPoint = _fHP;
-        m_fActionPoint = _fAP;
-    }
-
-    public void SetHPAndAPByDelta( float _fHPDelta , float _fAPDelta )
-    {
-        m_fHealthPoint += _fHPDelta;
-        m_fActionPoint += _fAPDelta;
-    }
-
-    public void SetHP(float _fHP)
-    {
-        m_fHealthPoint = _fHP;
-    }
-    public void SetHPByDelta(float _fHPDelta)
-    {
-        m_fHealthPoint +=_fHPDelta;
-    }
-    public void SetAP(float _fAP)
-    {
-        m_fActionPoint = _fAP;
-    }
-    public void SetAPByDelta(float _fAPDelta)
-    {
-        m_fActionPoint += _fAPDelta;
-    }
-}
-
-[System.Serializable]
-public class RecoverParameter
-{   
-    public  float   m_fHPRecoverSpeed = 0f; // 恢復速度
-    public  float   m_fAPRecoverSpeed = 0f;
-
-    public float GetHPRecoverValue
-    {
-        get
-        {
-            float   _value = m_fHPRecoverSpeed * Time.deltaTime;
-            return  _value;
-        }
-    }
-
-    public float GetAPRecoverValue
-    {
-        get
-        {
-            float   _value = m_fAPRecoverSpeed * Time.deltaTime;
-            return  _value;
-        }
-    }
-}
 
 public class CharaterBase : MonoBehaviour {
 
@@ -96,18 +15,23 @@ public class CharaterBase : MonoBehaviour {
     public Animator m_Animator = null;
     //角色攻擊class
     public HitCase m_HitCase = new HitCase();
-    public ParticleSystem  m_DeathParticle  = null;
-    public ParticleSystem m_RightSideHitParticle = null;
-    public ParticleSystem m_LeftSideHitParticle = null;
-
+    public EffectCase     m_EffectCase = null;
+    public DefenseCase m_DefenceCase = new DefenseCase();
     private int m_iFlip = 1; // -1 , 1
     private SpriteRenderer m_SpriteRenderer = null;
 
+    protected Sprite GetNowSprite
+    {
+        get
+        {
+            return m_SpriteRenderer.sprite;
+        }
+    }
 
     protected virtual void Start () {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         m_SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        m_Animator = GetComponentInChildren<Animator>();
+//        m_Animator = GetComponentInChildren<Animator>();
 	}
 	
 	// Update is called once per frame
@@ -126,9 +50,8 @@ public class CharaterBase : MonoBehaviour {
 
     private void StartDeathEffect()
     {        
-        m_DeathParticle.Play();
-//        m_DeathParticle.externalForces = new ()
         m_CharaterParameter.m_isDeath = true;
+        m_EffectCase.m_DeathParticle.Play();
     }
 
     private void DeathEffect()
@@ -141,7 +64,7 @@ public class CharaterBase : MonoBehaviour {
         m_SpriteRenderer.material.color = _c;
 
         //角色死亡效果播放完畢
-        if (_a < 0 && !m_DeathParticle.isPlaying)
+        if (_a < 0 && !m_EffectCase.m_DeathParticle.isPlaying)
         {
             gameObject.SetActive(false);
             _c.a = 1;
@@ -158,10 +81,15 @@ public class CharaterBase : MonoBehaviour {
         transform.Translate(_MoveV2);
     }
 
+    protected void Jump()
+    {
+        m_Rigidbody2D.AddForce( new Vector2( 0 , m_CharaterParameter.m_iJumpPower));
+    }
+
     /// <summary>
     /// 取得角色面向
     /// </summary>
-    protected int GetFlip
+    public int GetFlip
     {
         get
         {return m_iFlip;}
@@ -208,6 +136,11 @@ public class CharaterBase : MonoBehaviour {
         }
     }
 
+    protected void ProcessDefence()
+    {
+        
+    }
+
     /// <summary>
     /// 角色生命 + Delta
     /// </summary>
@@ -225,37 +158,76 @@ public class CharaterBase : MonoBehaviour {
     {
         if (_iSide < 0)
         {
-            if (m_RightSideHitParticle != null)
-                m_RightSideHitParticle.Play();
+            if (m_EffectCase.m_RightSideHitParticle != null)
+                m_EffectCase.m_RightSideHitParticle.Play();
         }
         else
         {
-            if (m_LeftSideHitParticle != null)
-                m_LeftSideHitParticle.Play();
+            if (m_EffectCase.m_LeftSideHitParticle != null)
+                m_EffectCase.m_LeftSideHitParticle.Play();
         }
-    }
+    }   
         
     /// <summary>
     /// 角色受到傷害
     /// </summary>
     public virtual void GetDamage( int _iDamage , int _iSide , Vector2 _ForceV2 = default(Vector2) )
     {
-        ProcessHealthPoint( - _iDamage );
-        ProcessGetDamageEffect(_iSide);
+        if (m_CharaterParameter.m_isDeath) return;
 
-        if ( _ForceV2 != Vector2.zero ) 
-            m_Rigidbody2D.velocity = _ForceV2;
+        //當角色防禦且面對攻擊來的方向
+        if (m_DefenceCase.IsDefence && (GetFlip != _iSide))
+        {
+            //Do 防禦成功
+            if ( _ForceV2 != Vector2.zero ) 
+                m_Rigidbody2D.velocity = _ForceV2;
+        }
+        else
+        {
+            //Do 受到傷害
+            ProcessHealthPoint( - _iDamage );
+            ProcessGetDamageEffect(_iSide);
+
+            if ( _ForceV2 != Vector2.zero )
+            {
+                if ( m_Rigidbody2D != null)
+                    m_Rigidbody2D.velocity = _ForceV2;
+                else if (GetComponent<Door>() == null)
+                {
+                    Debug.LogError(gameObject.name + "  Don't have rigibody2D!!!");
+                }
+            }
+        }
     }
+
+
 
     #region Dash Event
     protected void OnDash(Vector2 _V2)
     {
         m_Rigidbody2D.velocity = _V2;
     }
+   
+    protected void OnDashStart()
+    {
+        if (m_Animator != null)
+            m_Animator.SetBool("isDash" , true);
+        if (m_EffectCase.m_CharacterSpriteAnimator != null)
+        {
+            m_EffectCase.m_CharacterSpriteAnimator.Play("DashStart");
+        }
+    }
 
     protected void OnDashFin()
     {
+        if (m_Animator)
+            m_Animator.SetBool("isDash" , false);
+
         SetHitCase(false);
+        if (m_EffectCase.m_CharacterSpriteAnimator != null)
+        {
+            m_EffectCase.m_CharacterSpriteAnimator.Play("DashEnd");
+        }
     }
     #endregion
 }
