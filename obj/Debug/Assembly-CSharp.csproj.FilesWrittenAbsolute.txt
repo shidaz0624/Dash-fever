@@ -1,0 +1,17 @@
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Assembly-CSharp.dll.mdb
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Assembly-CSharp.dll
+/Users/Shitaz/GitHub/DashFever/obj/Debug/Assembly-CSharp.dll
+/Users/Shitaz/GitHub/DashFever/obj/Debug/Assembly-CSharp.dll.mdb
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/UnityEngine.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/UnityEditor.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/UnityEngine.UI.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/UnityEngine.Networking.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Mono.Cecil.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Unity.SerializationLogic.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Unity.DataContract.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/ICSharpCode.NRefactory.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Unity.UNetWeaver.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Unity.UNetWeaver.dll.mdb
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Unity.CecilTools.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Mono.Cecil.Pdb.dll
+/Users/Shitaz/GitHub/DashFever/Temp/bin/Debug/Mono.Cecil.Mdb.dll

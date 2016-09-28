@@ -77,6 +77,9 @@ public class CharaterParameter
     public  float   m_fActionPoint  = 0f;
     public  int     m_iJumpPower    = 1300;
     public  bool    m_isDeath       = false;
+    public  float   m_fViewDistance = 0f;
+
+
 
     public void SetHPAndAP(float _fHP , float _fAP)
     {
@@ -106,7 +109,7 @@ public class CharaterParameter
     {
         m_fActionPoint += _fAPDelta;
     }
-}
+}    
 
 /// <summary>
 /// 角色恢復力
@@ -114,8 +117,8 @@ public class CharaterParameter
 [System.Serializable]
 public class RecoverParameter
 {   
-    public  float   m_fHPRecoverSpeed = 0f; // 恢復速度
-    public  float   m_fAPRecoverSpeed = 0f;
+    public  float   m_fHPRecoverSpeed = 0f; // HP恢復速度
+    public  float   m_fAPRecoverSpeed = 0f; // AP恢復速度
 
     public float GetHPRecoverValue
     {
@@ -143,16 +146,4 @@ public class EffectCase
     public ParticleSystem m_RightSideHitParticle = null;
     public ParticleSystem m_LeftSideHitParticle = null;
     public Animator m_CharacterSpriteAnimator = null;  
-//    public ParticleSystem m_DefenceParticle = null;
 }
-
-//public class HoldCase
-//{
-//    private float m_HoldTimer = 0f;
-//    public ParticleSystem m_HoldParticle = null;
-//
-//    public void SetEnable()
-//    {
-//        
-//    }
-//}

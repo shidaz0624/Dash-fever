@@ -4,17 +4,19 @@ using System.Collections;
 
 public class CharaterBase : MonoBehaviour {
 
-    //角色參數class
+    [Header("角色參數class")] 
     public CharaterParameter m_CharaterParameter = new CharaterParameter();
+    [Header("角色自動回覆class")]
     public RecoverParameter  m_RecoverParameter  = new RecoverParameter();
-    //地板class
+    [Header("地板class")] 
     public GroundCase m_Ground = new GroundCase();
     //角色鋼體
     protected Rigidbody2D m_Rigidbody2D = null;
-    //角色狀態機
+    [Header("角色狀態機")]
     public Animator m_Animator = null;
     //角色攻擊class
     public HitCase m_HitCase = new HitCase();
+    [Header("效果class")]
     public EffectCase     m_EffectCase = null;
     public DefenseCase m_DefenceCase = new DefenseCase();
     private int m_iFlip = 1; // -1 , 1
@@ -28,23 +30,27 @@ public class CharaterBase : MonoBehaviour {
         }
     }
 
-    protected virtual void Start () {
+    /// <summary>
+    /// Get Rigidbody2D , Get SpriteRenderer
+    /// </summary>
+    protected virtual void Start () 
+    {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         m_SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
-//        m_Animator = GetComponentInChildren<Animator>();
 	}
-	
-	// Update is called once per frame
-    protected virtual void Update () {
-
+		
+    protected virtual void Update () 
+    {
+        //判斷角色是否在地板上
         m_Ground.m_isGround = m_Ground.IsGround;
+
+        //將是否在地板資訊傳給Animator
         if (m_Animator != null)
             m_Animator.SetBool("isGround" , m_Ground.m_isGround);
 
+        //若角色被設定死亡，則播放死亡效果
         if (m_CharaterParameter.m_isDeath)
-        {
             DeathEffect();
-        }
 
 	}
 
@@ -71,8 +77,7 @@ public class CharaterBase : MonoBehaviour {
             m_SpriteRenderer.material.color = _c;
         }
     }
-
-    private CharacterController m_CharacterController;
+        
     /// <summary>
     /// 角色移動
     /// </summary>   
@@ -81,13 +86,16 @@ public class CharaterBase : MonoBehaviour {
         transform.Translate(_MoveV2);
     }
 
+    /// <summary>
+    /// 角色跳躍
+    /// </summary>
     protected void Jump()
     {
         m_Rigidbody2D.AddForce( new Vector2( 0 , m_CharaterParameter.m_iJumpPower));
     }
 
     /// <summary>
-    /// 取得角色面向
+    /// 取得角色面向 > 0 = 面右 ， < 0 = 面左
     /// </summary>
     public int GetFlip
     {
@@ -106,7 +114,7 @@ public class CharaterBase : MonoBehaviour {
     }
 
     /// <summary>
-    /// 設置攻擊參數
+    /// 設置攻擊參數，True = 直接觸發 ， False = 直接取消目前的攻擊
     /// </summary>   
     protected void SetHitCase( bool _isEnabled , int _iDamage = 0, Vector2  _ForceV2 = default(Vector2))
     {
@@ -223,7 +231,9 @@ public class CharaterBase : MonoBehaviour {
         if (m_Animator)
             m_Animator.SetBool("isDash" , false);
 
+        //關閉傷害
         SetHitCase(false);
+
         if (m_EffectCase.m_CharacterSpriteAnimator != null)
         {
             m_EffectCase.m_CharacterSpriteAnimator.Play("DashEnd");

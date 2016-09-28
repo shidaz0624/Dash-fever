@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public class ObjectPool : MonoBehaviour {
 
+    /// <summary>
+    /// 物件池中有的物件類型
+    /// </summary>
     public enum ObjectPoolID
     {
         NONE,
@@ -11,16 +14,20 @@ public class ObjectPool : MonoBehaviour {
         DASH_SMOKE,
     }
 
-
     public static ObjectPool m_MonoRef = null;
 
     [System.Serializable]
     public class PoolUnit
     {
+        //物件種類
         public ObjectPoolID m_ID            = ObjectPoolID.NONE;
+        //物件使用的prefab
         public GameObject   m_Prefab        = null;
+        //物件的最大數量
         public int          m_iMaxCount     = 0;
+        //物件在初始化時的初始數量
         public int          m_iInitCount    = 0;
+        //物件清單
         public List<GameObject> m_PoolList  = null;
     }
     public List<PoolUnit> m_PoolUnitList = null;
@@ -44,23 +51,23 @@ public class ObjectPool : MonoBehaviour {
         for(int i = 0 ; i < m_PoolUnitList.Count ; i++)
         {            
             if (m_PoolUnitList[i] != null)
-                InitPoolUnit( m_PoolUnitList[i] );
+                InitObjectPoolUnit( m_PoolUnitList[i] );
         }
     }        
 
     /// <summary>
     /// 初始化單位物件池
     /// </summary>
-    private void InitPoolUnit(PoolUnit _PoolUnit)
+    private void InitObjectPoolUnit(PoolUnit _PoolUnit)
     {
-        //使用異步線程來創建物件
-        StartCoroutine(CreateInitObject(_PoolUnit));
+        //使用非同步來創建物件
+        StartCoroutine(CreateUnitObject(_PoolUnit));
     }
 
     /// <summary>
     /// 非同步創建物件池物件
     /// </summary>
-    private IEnumerator CreateInitObject(PoolUnit _PoolUnit)
+    private IEnumerator CreateUnitObject(PoolUnit _PoolUnit)
     {
         _PoolUnit.m_PoolList = new List<GameObject>();
         for (int i = 0 ; i < _PoolUnit.m_iInitCount ; i++)
@@ -79,19 +86,23 @@ public class ObjectPool : MonoBehaviour {
     /// </summary>
     public GameObject GetObject(ObjectPoolID _ID)
     {
+        //找出符合類型的物件池
         for(int i = 0 ; i < m_PoolUnitList.Count ; i++ )
         {
             if (m_PoolUnitList[i] != null && m_PoolUnitList[i].m_ID == _ID)
-            {                
+            {                     
                 List<GameObject> _objList =  m_PoolUnitList[i].m_PoolList;
                 for (int x = 0 ; x < _objList.Count ; x ++)
                 {
+                    //找出物件池中被關掉(未使用)的物件
                     if (!_objList[x].activeInHierarchy)
                     {
                         return _objList[x];
                     }
                 }
+                //若物件池中沒有空閒的物件
 
+                //若此物件類型還未達物件上限，則新增一個物件，並回傳
                 if (m_PoolUnitList[i].m_PoolList.Count < m_PoolUnitList[i].m_iMaxCount)
                 {
                     GameObject _Unit = Instantiate( m_PoolUnitList[i].m_Prefab ) as GameObject;

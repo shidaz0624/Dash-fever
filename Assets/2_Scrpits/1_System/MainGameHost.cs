@@ -26,7 +26,7 @@ public class MainGameHost : MonoBehaviour {
 
     private void InitAllSystem()
     {
-        m_GUIMainSystem.InitUISystem();
+        m_GUIMainSystem.InitUISys();
     }
 
     #region ============== GUIMainSystem ==============

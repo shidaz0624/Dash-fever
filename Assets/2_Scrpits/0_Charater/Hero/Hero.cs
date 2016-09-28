@@ -1,26 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-
-
 public class Hero : CharaterBase {
 
+    //Dash Calss
     public DashCase m_Dash = new DashCase();
-
+    //攝影機動畫效果
     public Animator m_CameraEffect = null;
-
+    //按住Enter的持續時間
     private float m_HoldTimer = 0f;
+    //按住ENTER的粒子效果
     public ParticleSystem m_HoldParticle = null;
 
-    private float m_fOriginHorozontal = 0f; //原始橫向位移參數
+    //輸入進來的橫向位移量
+    private float m_fOriginHorozontal = 0f; 
+    //計算後的橫向位移量
     private float m_fHorizontal = 0f;
 
     #region MonoBehaviour
     protected void Awake()
     {
-        m_Dash.m_DashClass.OnDash = OnDash;
-        m_Dash.m_DashClass.OnDashStart = OnDashStart;
-        m_Dash.m_DashClass.OnDashFin = OnDashFin;
+        RegisterEvent();
     }
 
     protected override void  Start () 
@@ -42,46 +42,64 @@ public class Hero : CharaterBase {
             ( (int)m_CharaterParameter.m_fHealthPoint , (int)m_CharaterParameter.m_fActionPoint );
     }        
 
-    private void OnDestory()
+    private void OnDisable()
     {
-        m_Dash.m_DashClass.OnDash = null;
-        m_Dash.m_DashClass.OnDashStart = null;
-        m_Dash.m_DashClass.OnDashFin = null;
+        UnregisterEvent();
     }
     #endregion	
 
+    #region Event
+    private void RegisterEvent()
+    {
+        m_Dash.m_DashClass.OnDash       = OnDash;
+        m_Dash.m_DashClass.OnDashStart  = OnDashStart;
+        m_Dash.m_DashClass.OnDashFin    = OnDashFin;
+    }
+
+    private void UnregisterEvent()
+    {
+        m_Dash.m_DashClass.OnDash       = null;
+        m_Dash.m_DashClass.OnDashStart  = null;
+        m_Dash.m_DashClass.OnDashFin    = null;
+    }
+    #endregion
+
     private void ProcessInput()
     {
+        //取得目前輸入的橫向位移量
         m_fOriginHorozontal = Input.GetAxis("Horizontal");
+        //換算要使用的位移量
         m_fHorizontal = m_fOriginHorozontal * Time.deltaTime * 15;
 
+        //用輸入的位移量判斷是否需要轉向
         base.ProcessFlip(m_fHorizontal);
 
+        //取得是否按下防禦鍵
         bool _isKeyDefence = Input.GetKey(KeyCode.LeftShift);
 
         if (_isKeyDefence)
         {
+            //若按下防禦時，開啟防禦，並將橫向位移量歸零
             m_DefenceCase.SetDefence( true , 0 );
+            m_fHorizontal = 0;
+            m_fOriginHorozontal = 0;
         }
         else
         {
             m_DefenceCase.SetDefence(false);
-        }
+        }       
 
-        if (_isKeyDefence)
-        {
-            m_fHorizontal = 0;
-            m_fOriginHorozontal = 0;
-        }
-            
+        //角色移動
         Move(new Vector2(m_fHorizontal , 0));
-        
+
+        //若角色在地上，則將橫向位移量傳給Animator做跑步動畫
+        //不在地上時歸零，Animator順利處理跳躍的動畫
         if ( m_Ground.IsGround )
             m_Animator.SetFloat( "fHorizontal" , Mathf.Abs( m_fOriginHorozontal ));
         else
             m_Animator.SetFloat( "fHorizontal" , 0);
 
-        //將目前的垂直速度設定給動作狀態機
+        //將目前的垂直速度設定給Animator
         m_Animator.SetFloat( "fVertical" , m_Rigidbody2D.velocity.y);
 
         //處理角色是否觸發跳躍
@@ -90,25 +108,34 @@ public class Hero : CharaterBase {
             base.Jump();
         }
 
+        //當按下Return
         if (Input.GetKey(KeyCode.Return))
         {
+            //計算按下的總時間
             m_HoldTimer += Time.deltaTime * 1.5f;
+            //最小1f，最大1.5f
             m_HoldTimer = Mathf.Clamp(m_HoldTimer , 1f , 1.5f);
             if (!m_HoldParticle.isPlaying)
                 m_HoldParticle.Play();
         }
         else if (m_HoldParticle.isPlaying)
+        {
             m_HoldParticle.Stop();
+        }
             
 
+        //Return起來時
         if (Input.GetKeyUp(KeyCode.Return))
         {
+            //當角色行動點數 >= 20時
             if (m_CharaterParameter.m_fActionPoint >= 20)
             { 
+                //觸發Dash
                 TriggerDash();
-
+                //行動點數減20
                 m_CharaterParameter.m_fActionPoint -= 20;
 
+                //若按下Return時間超過1f * 1.5f時觸發攝影機震動效果
                 if (m_HoldTimer == 1.5f)
                     m_CameraEffect.SetTrigger("Shake");
             }
@@ -116,8 +143,12 @@ public class Hero : CharaterBase {
         }            
     }   
 
+    /// <summary>
+    /// 觸發Dash
+    /// </summary>
     private void TriggerDash()
     {
+        //計算這次要觸發Dash的值
         Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip * (m_HoldTimer + 1f ) , m_Dash.m_DashForceV2.y);
         m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
         SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
@@ -126,6 +157,9 @@ public class Hero : CharaterBase {
         ShowDashSmoke();
     }
 
+    /// <summary>
+    /// 打開Dash殘影
+    /// </summary>
     private void ShowDashShadow()
     {
         GameObject _ShadowEffect = ObjectPool.m_MonoRef.GetObject(ObjectPool.ObjectPoolID.SHADOW_EFFECT);
@@ -136,6 +170,9 @@ public class Hero : CharaterBase {
         }
     }
 
+    /// <summary>
+    /// 打開Dash煙霧
+    /// </summary>
     private void ShowDashSmoke()
     {
         GameObject _DashSmokeEffect = ObjectPool.m_MonoRef.GetObject(ObjectPool.ObjectPoolID.DASH_SMOKE);
@@ -145,18 +182,66 @@ public class Hero : CharaterBase {
             _DashSmokeEffect.GetComponent<DashSmokeEffect>().StartEffect(gameObject.transform , (GetFlip == 1)? true : false );
         }
     }
-        
+
     void OnTriggerEnter2D(Collider2D other)
     {        
         if ( other.gameObject.tag == "Enemy" && m_HitCase.m_isEnabled)
         {
             other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip , m_Rigidbody2D.velocity / 10 );
+            MainGUISystem.m_MonoRef.UpdateComboByPlusValue(1);
         }
         else if (other.gameObject.tag == "Door" && m_HitCase.m_isEnabled)
         {
             Debug.LogError("Hit Door");
             other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip );
+            MainGUISystem.m_MonoRef.UpdateComboByPlusValue(1);
         }
     }
 
+    public override void GetDamage (int _iDamage, int _iSide, Vector2 _ForceV2)
+    {
+        if (m_CharaterParameter.m_isDeath) return;
+
+        //當角色防禦且面對攻擊來的方向
+        if (m_DefenceCase.IsDefence && (GetFlip != _iSide))
+        {
+            //Do 防禦成功
+            if ( _ForceV2 != Vector2.zero ) 
+                m_Rigidbody2D.velocity = _ForceV2;
+        }
+        else
+        {
+            //Do 受到傷害
+            ProcessHealthPoint( - _iDamage );
+            ProcessGetDamageEffect(_iSide);
+            StartCoroutine(DamageEffect());
+
+            if ( _ForceV2 != Vector2.zero )
+            {
+                if ( m_Rigidbody2D != null)
+                    m_Rigidbody2D.velocity = _ForceV2;
+                else if (GetComponent<Door>() == null)
+                {
+                    Debug.LogError(gameObject.name + "  Don't have rigibody2D!!!");
+                }
+            }
+        }
+
+
+    }
+    public SpriteRenderer m_CharacterRenderer;
+    private Material m_CharacterMaterial;
+    private IEnumerator DamageEffect()
+    {
+        if (m_CharacterMaterial == null)
+            m_CharacterMaterial = m_CharacterRenderer.material;            
+
+        for (int i = 0 ; i < 4 ; i++)
+        {
+            yield return new WaitForSeconds(0.05f);
+            m_CharacterMaterial.SetFloat("SingleColor" , 1f);    
+            yield return new WaitForSeconds(0.05f);
+            m_CharacterMaterial.SetFloat("SingleColor" , 0f);
+        }
+    }
 }

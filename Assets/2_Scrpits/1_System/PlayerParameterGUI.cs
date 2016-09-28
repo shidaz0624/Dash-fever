@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 
-public class PlayerParameterGUI : MonoBehaviour {
+public class PlayerParameterGUI : SystemBase {
 
     [Serializable]
     public class HeroUI
