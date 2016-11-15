@@ -25,20 +25,27 @@ public class Hero : CharaterBase {
 
     protected override void  Start () 
     {       
+        
         base.Start();
     }
         
     protected override void Update ()
     {
+        //處理地板，死亡特效
         base.Update();
+
+        //更新Dash
         m_Dash.m_DashClass.Update();
+
+        //處理玩家輸入
         this.ProcessInput();
 
         //計算現在的HP及AP
         m_CharaterParameter.SetHPAndAPByDelta
         ( m_RecoverParameter.GetHPRecoverValue , m_RecoverParameter.GetAPRecoverValue );
+
         //將HP及AP顯示在GUI上
-        MainGameHost.MoroRef.UpdateHeroHPAndAP
+        MainGameHost.MonoRef.UpdateHeroHPAndAP
             ( (int)m_CharaterParameter.m_fHealthPoint , (int)m_CharaterParameter.m_fActionPoint );
     }        
 
@@ -49,13 +56,18 @@ public class Hero : CharaterBase {
     #endregion	
 
     #region Event
+    /// <summary>
+    /// 註冊事件
+    /// </summary>
     private void RegisterEvent()
     {
         m_Dash.m_DashClass.OnDash       = OnDash;
         m_Dash.m_DashClass.OnDashStart  = OnDashStart;
         m_Dash.m_DashClass.OnDashFin    = OnDashFin;
     }
-
+    /// <summary>
+    /// 解註冊事件
+    /// </summary>
     private void UnregisterEvent()
     {
         m_Dash.m_DashClass.OnDash       = null;
@@ -187,48 +199,61 @@ public class Hero : CharaterBase {
     {        
         if ( other.gameObject.tag == "Enemy" && m_HitCase.m_isEnabled)
         {
-            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip , m_Rigidbody2D.velocity / 10 );
-            MainGUISystem.m_MonoRef.UpdateComboByPlusValue(1);
+            //設置攻擊參數
+            DamageClass _DamageData = new DamageClass();
+            _DamageData.m_iDamage = m_HitCase.m_iDamage;
+            _DamageData.m_iSide = GetFlip;
+            _DamageData.m_ForceV2 = m_Rigidbody2D.velocity / 10;
+
+            other.SendMessage("GetDamage" , _DamageData );
+            MainGameHost.MonoRef.UpdateComboByPlusValue(1);
         }
         else if (other.gameObject.tag == "Door" && m_HitCase.m_isEnabled)
         {
-            Debug.LogError("Hit Door");
-            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip );
-            MainGUISystem.m_MonoRef.UpdateComboByPlusValue(1);
+            //設置攻擊參數
+            DamageClass _DamageData = new DamageClass();
+            _DamageData.m_iDamage = m_HitCase.m_iDamage;
+            _DamageData.m_iSide = GetFlip;
+
+            other.SendMessage("GetDamage" , _DamageData );
+            MainGameHost.MonoRef.UpdateComboByPlusValue(1);
         }
     }
 
-    public override void GetDamage (int _iDamage, int _iSide, Vector2 _ForceV2)
+    public override void GetDamage (DamageClass _Data)
     {
         if (m_CharaterParameter.m_isDeath) return;
 
         //當角色防禦且面對攻擊來的方向
-        if (m_DefenceCase.IsDefence && (GetFlip != _iSide))
+        if (m_DefenceCase.IsDefence && (GetFlip != _Data.m_iSide))
         {
             //Do 防禦成功
-            if ( _ForceV2 != Vector2.zero ) 
-                m_Rigidbody2D.velocity = _ForceV2;
+            if ( _Data.m_ForceV2 != Vector2.zero ) 
+                m_Rigidbody2D.velocity = _Data.m_ForceV2;
         }
         else
         {
             //Do 受到傷害
-            ProcessHealthPoint( - _iDamage );
-            ProcessGetDamageEffect(_iSide);
+            ProcessHealthPoint( - _Data.m_iDamage );
+            ProcessGetDamageEffect(_Data.m_iSide);
             StartCoroutine(DamageEffect());
 
-            if ( _ForceV2 != Vector2.zero )
+            CreateDamagePoint(transform , _Data.m_iDamage);
+
+            if ( _Data.m_ForceV2 != Vector2.zero )
             {
                 if ( m_Rigidbody2D != null)
-                    m_Rigidbody2D.velocity = _ForceV2;
+                    m_Rigidbody2D.velocity = _Data.m_ForceV2;
                 else if (GetComponent<Door>() == null)
                 {
                     Debug.LogError(gameObject.name + "  Don't have rigibody2D!!!");
                 }
             }
         }
-
-
     }
+
+
+
     public SpriteRenderer m_CharacterRenderer;
     private Material m_CharacterMaterial;
     private IEnumerator DamageEffect()

@@ -1,4 +1,4 @@
-Shader "My/SpriteSingleColor"
+Shader "My/SpriteFlashSingleColor"
 {
 	//類似外部變數的部分，可以Inspector中編輯
 	Properties

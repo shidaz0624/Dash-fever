@@ -14,7 +14,7 @@ public class CharaterBase : MonoBehaviour {
     protected Rigidbody2D m_Rigidbody2D = null;
     [Header("角色狀態機")]
     public Animator m_Animator = null;
-    //角色攻擊class
+    //角色攻擊碰撞的Flag及參數
     public HitCase m_HitCase = new HitCase();
     [Header("效果class")]
     public EffectCase     m_EffectCase = null;
@@ -179,27 +179,29 @@ public class CharaterBase : MonoBehaviour {
     /// <summary>
     /// 角色受到傷害
     /// </summary>
-    public virtual void GetDamage( int _iDamage , int _iSide , Vector2 _ForceV2 = default(Vector2) )
+    public virtual void GetDamage( DamageClass _Data )
     {
         if (m_CharaterParameter.m_isDeath) return;
 
         //當角色防禦且面對攻擊來的方向
-        if (m_DefenceCase.IsDefence && (GetFlip != _iSide))
+        if (m_DefenceCase.IsDefence && (GetFlip != _Data.m_iSide))
         {
             //Do 防禦成功
-            if ( _ForceV2 != Vector2.zero ) 
-                m_Rigidbody2D.velocity = _ForceV2;
+            if ( _Data.m_ForceV2 != Vector2.zero ) 
+                m_Rigidbody2D.velocity = _Data.m_ForceV2;
         }
         else
         {
             //Do 受到傷害
-            ProcessHealthPoint( - _iDamage );
-            ProcessGetDamageEffect(_iSide);
+            ProcessHealthPoint( - _Data.m_iDamage );
+            ProcessGetDamageEffect(_Data.m_iSide);
 
-            if ( _ForceV2 != Vector2.zero )
+            CreateDamagePoint(transform , _Data.m_iDamage);
+
+            if ( _Data.m_ForceV2 != Vector2.zero )
             {
                 if ( m_Rigidbody2D != null)
-                    m_Rigidbody2D.velocity = _ForceV2;
+                    m_Rigidbody2D.velocity = _Data.m_ForceV2;
                 else if (GetComponent<Door>() == null)
                 {
                     Debug.LogError(gameObject.name + "  Don't have rigibody2D!!!");
@@ -208,7 +210,13 @@ public class CharaterBase : MonoBehaviour {
         }
     }
 
-
+    /// <summary>
+    /// 建立傷害值
+    /// </summary>
+    protected void CreateDamagePoint( Transform _Transform , int _iDamage )
+    {
+        ObjectPool.m_MonoRef.GetObject(ObjectPool.ObjectPoolID.DAMAGE_HUD).GetComponent<DamageHUD>().Play(_Transform , _iDamage.ToString());
+    }        
 
     #region Dash Event
     protected void OnDash(Vector2 _V2)

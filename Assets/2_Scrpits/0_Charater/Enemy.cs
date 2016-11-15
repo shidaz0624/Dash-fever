@@ -156,11 +156,11 @@ public class Enemy : CharaterBase {
         }
     } 
 
-    public override void GetDamage (int _iDamage, int _iSide, Vector2 _ForceV2)
+    public override void GetDamage (DamageClass _Data)
     {
-        base.GetDamage (_iDamage, _iSide, _ForceV2);
+        base.GetDamage (_Data);
 
-        Invoke("Test" , 0.1f);
+//        Invoke("Test" , 0.1f);
     }
 
     private void Test()
@@ -173,8 +173,13 @@ public class Enemy : CharaterBase {
     {                
         if ( other.gameObject.tag == "Player" && m_HitCase.m_isEnabled)
         {
-            Debug.Log("Enemy Hit Player");
-            other.GetComponent<CharaterBase>().GetDamage( m_HitCase.m_iDamage, GetFlip , m_Rigidbody2D.velocity / 10 );
+            //設置攻擊參數
+            DamageClass _DamageData = new DamageClass();
+            _DamageData.m_iDamage = m_HitCase.m_iDamage;
+            _DamageData.m_iSide = GetFlip;
+            _DamageData.m_ForceV2 = m_Rigidbody2D.velocity / 10;
+
+            other.SendMessage( "GetDamage" , _DamageData );
         }
     }
 }

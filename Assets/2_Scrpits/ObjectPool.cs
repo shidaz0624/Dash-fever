@@ -12,6 +12,7 @@ public class ObjectPool : MonoBehaviour {
         NONE,
         SHADOW_EFFECT,
         DASH_SMOKE,
+        DAMAGE_HUD,
     }
 
     public static ObjectPool m_MonoRef = null;
@@ -23,6 +24,7 @@ public class ObjectPool : MonoBehaviour {
         public ObjectPoolID m_ID            = ObjectPoolID.NONE;
         //物件使用的prefab
         public GameObject   m_Prefab        = null;
+        public Transform    m_Parent        = default(Transform);
         //物件的最大數量
         public int          m_iMaxCount     = 0;
         //物件在初始化時的初始數量
@@ -73,7 +75,10 @@ public class ObjectPool : MonoBehaviour {
         for (int i = 0 ; i < _PoolUnit.m_iInitCount ; i++)
         {
             GameObject _Unit = Instantiate( _PoolUnit.m_Prefab ) as GameObject;
-            _Unit.transform.parent = this.transform;
+            if (_PoolUnit.m_Parent == default(Transform))
+                _Unit.transform.parent = this.transform;
+            else
+                _Unit.transform.parent = _PoolUnit.m_Parent;
             _Unit.SetActive(false);
             _PoolUnit.m_PoolList.Add(_Unit);
             yield return new WaitForEndOfFrame();
@@ -106,7 +111,11 @@ public class ObjectPool : MonoBehaviour {
                 if (m_PoolUnitList[i].m_PoolList.Count < m_PoolUnitList[i].m_iMaxCount)
                 {
                     GameObject _Unit = Instantiate( m_PoolUnitList[i].m_Prefab ) as GameObject;
-                    _Unit.transform.parent = this.transform;
+                    if (m_PoolUnitList[i].m_Parent == default(Transform))
+                        _Unit.transform.parent = this.transform;
+                    else
+                        _Unit.transform.parent = m_PoolUnitList[i].m_Parent;
+//                    _Unit.transform.localScale = Vector3.one;
                     _Unit.SetActive(false);
                     m_PoolUnitList[i].m_PoolList.Add(_Unit);
                     return _Unit;

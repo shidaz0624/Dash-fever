@@ -8,7 +8,7 @@ using System.Collections;
 public class GroundCase
 {
     public  Transform   m_GroundTag         = null; //角色偵測地板的射線起始點物件
-    public  LayerMask   m_GroundLayerMask;              //地板圖層
+    public  LayerMask   m_GroundLayerMask;          //地板圖層
     public  float       m_fGroundRay        = 0.2f;
     public  bool        m_isGround          = false;
     public bool IsGround
@@ -26,8 +26,8 @@ public class GroundCase
 [System.Serializable]
 public class DefenseCase
 {
-    private bool m_isDefence     = false;
-    public int m_iDefecnePoint = 0;
+    private bool m_isDefence    = false;
+    public int m_iDefecnePoint  = 0;
     public ParticleSystem m_DefenceParticle = null;
 
     public void SetDefence(bool _isEnable , int _iDefencePoint = -1)
@@ -54,7 +54,6 @@ public class DefenseCase
         else if (!_isEnable && m_DefenceParticle.isPlaying)
             m_DefenceParticle.Stop();
     }
-
 }
 
 /// <summary>

@@ -3,28 +3,24 @@ using System.Collections;
 
 public class MainGUISystem : MonoBehaviour {
 
-    private static MainGUISystem MonoRef = null;
-    public static MainGUISystem m_MonoRef{ get{ return MonoRef;} }
+//    private static MainGUISystem MonoRef = null;
+//    public static MainGUISystem m_MonoRef{ get{ return MonoRef;} }
 
-    public PlayerParameterGUI m_PlayerParameterGUI = null;
-    public ComboSystem m_ComboSys = null;
-
-    private void Awake()
-    {
-        InitUISys();
-    }
+    public PlayerParameterGUI   m_PlayerParameterGUI    = null; //角色面板 UI
+    public ComboSystem          m_ComboSys              = null; //Combo系統 UI
 
     public void InitUISys()
     {
-        MonoRef = this;
+//        MonoRef = this;
         m_ComboSys.Init();
     }
 
-    private void Update()
+    public void SysUpdate()
     {
         m_ComboSys.SysUpdate();
     }
-    #region Hero   
+
+    #region Hero Parameter GUI
     public void UpdateHeroGUI(int _iHP , int _iAP)
     {
         m_PlayerParameterGUI.UpdateHeroGUI(_iHP , _iAP);
@@ -41,7 +37,7 @@ public class MainGUISystem : MonoBehaviour {
     }
     #endregion
 
-    #region Combo sys
+    #region Combo sys GUI
     public void UpdateComboByPlusValue(int _iValue)
     {
         m_ComboSys.UpdateComboByPlusValue(_iValue );
