@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class EnemyTeamSystem : MonoBehaviour {
+public class EnemyTeamSystem : SystemBase {
 
     public List<Enemy> m_EmemyTeam = null;
 

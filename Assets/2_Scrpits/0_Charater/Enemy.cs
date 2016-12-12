@@ -4,7 +4,11 @@ using System.Collections;
 //AI 模式類型
 public enum AIMode
 {
-    
+    NONE,
+    PATROL,         //巡邏
+    ATTACK,         //攻擊
+    CAUTION,        //警戒
+    AVOID,          //躲避
 }
 
 public class Enemy : CharaterBase {
@@ -19,12 +23,13 @@ public class Enemy : CharaterBase {
     [Header("牆壁偵測距離")]
     public float m_fWallCheckDistance = 2f;
 
+    public AIMode m_AIMode = AIMode.NONE;
     [Header("警戒時保持與目標的最遠距離")]
     public float m_fKeepDistanceToTargetMax = 20f;
     [Header("警戒時保持與目標的最近距離")]
     public float m_fKeepDistanceToTargetMin = 5f;
 
-    public float m_fAttackRate = 1.5f;
+    public float m_fAttackRate = 1f;
     private float m_fAttackTimer = 0f;
 
     protected void Awake()
@@ -41,6 +46,7 @@ public class Enemy : CharaterBase {
     protected override void Start ()
     {
         base.Start ();
+        m_AIMode = AIMode.PATROL;
         m_Target = GameObject.FindGameObjectWithTag("Player").transform;
         if (m_Target == null)
             enabled = false;
@@ -48,9 +54,9 @@ public class Enemy : CharaterBase {
         FlipTrigger();
     }
         
-    protected override void Update ()
+    public override void MonoUpdate ()
     {
-        base.Update ();
+        base.MonoUpdate ();
         if (m_CharaterParameter.m_isDeath) return;
 
         float _fHorizontal = 10f * Time.deltaTime;
@@ -60,57 +66,97 @@ public class Enemy : CharaterBase {
         if (_fDisToTarget <= m_CharaterParameter.m_fViewDistance)
         {
             //在視野內
-
             //往目標移動
             //保持距離 或 進行攻擊，防禦
+            m_AIMode = AIMode.CAUTION;
+
+
         }
         else
         {
             //在視野外
             //持續巡邏
-        }
-
-
-
-        bool _isDefence = false;
-        if (_isDefence)
-        {
-            m_DefenceCase.IsDefence = _isDefence;
-            m_DefenceCase.SetDefenceEffect(_isDefence);
-            m_Dash.m_DashClass.Update();
-            return;
-        }                     
+            m_AIMode = AIMode.PATROL;
+            _fHorizontal *= .5f;
+            Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+            Move(_v2);
+        }            
 
         if (WallChecker || FlipChecker)
             FlipTrigger();
 
-
-
-        if ( Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMax  )
+        if (m_AIMode == AIMode.CAUTION)
         {
-            if (Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMin )
+            if ( Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMax  )
             {
-                _fHorizontal *= -1f;
+                if (Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMin )
+                {
+                    _fHorizontal *= -1f;
+                    Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+                    Move(_v2);
+                }
+                else
+                {
+                    m_fAttackTimer += Time.deltaTime;
+                    if (m_fAttackTimer > m_fAttackRate)
+                    {
+                        Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip  , m_Dash.m_DashForceV2.y);
+                        m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
+                        SetHitCase(true ,  1 , m_Dash.m_DashForceV2);  
+                        m_fAttackTimer = 0f;
+                        m_fAttackRate = Random.Range(0.2f,1f);
+                    }
+                }
+            }
+            else
+            {          
                 Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
                 Move(_v2);
             }
-            else
-            {
-                m_fAttackTimer += Time.deltaTime;
-                if (m_fAttackTimer > m_fAttackRate)
-                {
-                    Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip  , m_Dash.m_DashForceV2.y);
-                    m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
-                    SetHitCase(true ,  1 , m_Dash.m_DashForceV2);  
-                    m_fAttackTimer = 0f;
-                }
-            }
         }
-        else
-        {          
-            Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
-            Move(_v2);
-        }
+
+
+
+
+
+//        bool _isDefence = false;
+//        if (_isDefence)
+//        {
+//            m_DefenceCase.IsDefence = _isDefence;
+//            m_DefenceCase.SetDefenceEffect(_isDefence);
+//            m_Dash.m_DashClass.Update();
+//            return;
+//        }                     
+//
+//        if (WallChecker || FlipChecker)
+//            FlipTrigger();
+//
+//
+//        if ( Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMax  )
+//        {
+//            if (Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMin )
+//            {
+//                _fHorizontal *= -1f;
+//                Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+//                Move(_v2);
+//            }
+//            else
+//            {
+//                m_fAttackTimer += Time.deltaTime;
+//                if (m_fAttackTimer > m_fAttackRate)
+//                {
+//                    Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip  , m_Dash.m_DashForceV2.y);
+//                    m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
+//                    SetHitCase(true ,  1 , m_Dash.m_DashForceV2);  
+//                    m_fAttackTimer = 0f;
+//                }
+//            }
+//        }
+//        else
+//        {          
+//            Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+//            Move(_v2);
+//        }
 
         m_Dash.m_DashClass.Update();
     }        
@@ -167,19 +213,5 @@ public class Enemy : CharaterBase {
     {        
         m_Dash.m_DashClass.SetDashValue(m_Dash.m_DashForceV2 * GetFlip ,m_Dash.m_fTime);
         SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {                
-        if ( other.gameObject.tag == "Player" && m_HitCase.m_isEnabled)
-        {
-            //設置攻擊參數
-            DamageClass _DamageData = new DamageClass();
-            _DamageData.m_iDamage = m_HitCase.m_iDamage;
-            _DamageData.m_iSide = GetFlip;
-            _DamageData.m_ForceV2 = m_Rigidbody2D.velocity / 10;
-
-            other.SendMessage( "GetDamage" , _DamageData );
-        }
-    }
+    }        
 }

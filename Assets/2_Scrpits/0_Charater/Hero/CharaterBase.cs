@@ -12,6 +12,7 @@ public class CharaterBase : MonoBehaviour {
     public GroundCase m_Ground = new GroundCase();
     //角色鋼體
     protected Rigidbody2D m_Rigidbody2D = null;
+    public Rigidbody2D GetRigidbody2D{ get{ return m_Rigidbody2D; } }
     [Header("角色狀態機")]
     public Animator m_Animator = null;
     //角色攻擊碰撞的Flag及參數
@@ -23,12 +24,7 @@ public class CharaterBase : MonoBehaviour {
     private SpriteRenderer m_SpriteRenderer = null;
 
     protected Sprite GetNowSprite
-    {
-        get
-        {
-            return m_SpriteRenderer.sprite;
-        }
-    }
+    { get{ return m_SpriteRenderer.sprite; } }
 
     /// <summary>
     /// Get Rigidbody2D , Get SpriteRenderer
@@ -37,9 +33,11 @@ public class CharaterBase : MonoBehaviour {
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         m_SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        CharaterMaintainer.Mono.AddCharater(this);
 	}
 		
-    protected virtual void Update () 
+    public virtual void MonoUpdate () 
     {
         //判斷角色是否在地板上
         m_Ground.m_isGround = m_Ground.IsGround;
@@ -54,10 +52,13 @@ public class CharaterBase : MonoBehaviour {
 
 	}
 
-    private void StartDeathEffect()
+    public void PlayDeathEffect()
     {        
         m_CharaterParameter.m_isDeath = true;
-        m_EffectCase.m_DeathParticle.Play();
+        if (m_EffectCase.m_DeathParticle != null)
+            m_EffectCase.m_DeathParticle.Play();
+        else
+            Debug.LogError("!! " + gameObject.name + " m_DeathParticle is null ");
     }
 
     private void DeathEffect()
@@ -72,10 +73,15 @@ public class CharaterBase : MonoBehaviour {
         //角色死亡效果播放完畢
         if (_a < 0 && !m_EffectCase.m_DeathParticle.isPlaying)
         {
-            gameObject.SetActive(false);
+            this.CharaterDeactive();
             _c.a = 1;
             m_SpriteRenderer.material.color = _c;
         }
+    }
+
+    private void CharaterDeactive ()
+    {
+        gameObject.SetActive(false);
     }
         
     /// <summary>
@@ -144,25 +150,23 @@ public class CharaterBase : MonoBehaviour {
         }
     }
 
-    protected void ProcessDefence()
+    public void ProcessDefence( DamageClass _DamageClass )
     {
-        
+        if ( _DamageClass.m_ForceV2 != Vector2.zero ) 
+        {
+            m_Rigidbody2D.velocity = _DamageClass.m_ForceV2;
+        }
     }
 
     /// <summary>
     /// 角色生命 + Delta
     /// </summary>
-    protected void ProcessHealthPoint(int _iDelta)
+    public void ProcessHealthPoint(int _iDelta)
     {
         m_CharaterParameter.m_fHealthPoint += _iDelta;
-        if(m_CharaterParameter.m_fHealthPoint <= 0)
-        {
-            //To do Dead
-            StartDeathEffect();
-        }
     }
 
-    protected void ProcessGetDamageEffect(int _iSide)
+    public void ProcessGetDamageEffect(int _iSide)
     {
         if (_iSide < 0)
         {
@@ -177,46 +181,24 @@ public class CharaterBase : MonoBehaviour {
     }   
         
     /// <summary>
-    /// 角色受到傷害
+    /// 角色受到傷害後的動作
     /// </summary>
     public virtual void GetDamage( DamageClass _Data )
     {
-        if (m_CharaterParameter.m_isDeath) return;
-
-        //當角色防禦且面對攻擊來的方向
-        if (m_DefenceCase.IsDefence && (GetFlip != _Data.m_iSide))
-        {
-            //Do 防禦成功
-            if ( _Data.m_ForceV2 != Vector2.zero ) 
-                m_Rigidbody2D.velocity = _Data.m_ForceV2;
-        }
-        else
-        {
-            //Do 受到傷害
-            ProcessHealthPoint( - _Data.m_iDamage );
-            ProcessGetDamageEffect(_Data.m_iSide);
-
-            CreateDamagePoint(transform , _Data.m_iDamage);
-
-            if ( _Data.m_ForceV2 != Vector2.zero )
-            {
-                if ( m_Rigidbody2D != null)
-                    m_Rigidbody2D.velocity = _Data.m_ForceV2;
-                else if (GetComponent<Door>() == null)
-                {
-                    Debug.LogError(gameObject.name + "  Don't have rigibody2D!!!");
-                }
-            }
-        }
+        ProcessGetDamageEffect( _Data.m_iSide );
     }
 
-    /// <summary>
-    /// 建立傷害值
-    /// </summary>
-    protected void CreateDamagePoint( Transform _Transform , int _iDamage )
+    public virtual void OnTriggerEnter2D(Collider2D _Other)
     {
-        ObjectPool.m_MonoRef.GetObject(ObjectPool.ObjectPoolID.DAMAGE_HUD).GetComponent<DamageHUD>().Play(_Transform , _iDamage.ToString());
-    }        
+        if (m_HitCase.m_isEnabled == false ) return;
+        //設置攻擊參數
+        DamageClass _DamageData = new DamageClass();
+        _DamageData.m_iDamage = m_HitCase.m_iDamage;
+        _DamageData.m_iSide = GetFlip;
+        if (m_Rigidbody2D != null)
+            _DamageData.m_ForceV2 = m_Rigidbody2D.velocity / 10;
+        CharaterMaintainer.Mono.PassDamageClassToCharater(this , _DamageData , _Other.gameObject );
+    }
 
     #region Dash Event
     protected void OnDash(Vector2 _V2)

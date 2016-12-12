@@ -24,15 +24,14 @@ public class Hero : CharaterBase {
     }
 
     protected override void  Start () 
-    {       
-        
+    {               
         base.Start();
     }
         
-    protected override void Update ()
+    public override void MonoUpdate ()
     {
         //處理地板，死亡特效
-        base.Update();
+        base.MonoUpdate();
 
         //更新Dash
         m_Dash.m_DashClass.Update();
@@ -120,6 +119,11 @@ public class Hero : CharaterBase {
             base.Jump();
         }
 
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TriggerDash( new Vector2(-1f,0f) );
+        }
+
         //當按下Return
         if (Input.GetKey(KeyCode.Return))
         {
@@ -133,8 +137,7 @@ public class Hero : CharaterBase {
         else if (m_HoldParticle.isPlaying)
         {
             m_HoldParticle.Stop();
-        }
-            
+        }            
 
         //Return起來時
         if (Input.GetKeyUp(KeyCode.Return))
@@ -158,10 +161,19 @@ public class Hero : CharaterBase {
     /// <summary>
     /// 觸發Dash
     /// </summary>
-    private void TriggerDash()
+    private void TriggerDash(Vector2 _Force = default(Vector2))
     {
+        Vector2 _DashV2;
         //計算這次要觸發Dash的值
-        Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip * (m_HoldTimer + 1f ) , m_Dash.m_DashForceV2.y);
+        if (_Force == default(Vector2))
+            _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip * (m_HoldTimer + 1f ) , m_Dash.m_DashForceV2.y);
+        else
+            _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip * 2 , m_Dash.m_DashForceV2.y);
+        if (_Force != default(Vector2))
+        {
+            _DashV2.x = _DashV2.x * _Force.x ;
+            _DashV2.y = _DashV2.y * _Force.y ;
+        }
         m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
         SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
 
@@ -195,64 +207,16 @@ public class Hero : CharaterBase {
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
-    {        
-        if ( other.gameObject.tag == "Enemy" && m_HitCase.m_isEnabled)
-        {
-            //設置攻擊參數
-            DamageClass _DamageData = new DamageClass();
-            _DamageData.m_iDamage = m_HitCase.m_iDamage;
-            _DamageData.m_iSide = GetFlip;
-            _DamageData.m_ForceV2 = m_Rigidbody2D.velocity / 10;
-
-            other.SendMessage("GetDamage" , _DamageData );
-            MainGameHost.MonoRef.UpdateComboByPlusValue(1);
-        }
-        else if (other.gameObject.tag == "Door" && m_HitCase.m_isEnabled)
-        {
-            //設置攻擊參數
-            DamageClass _DamageData = new DamageClass();
-            _DamageData.m_iDamage = m_HitCase.m_iDamage;
-            _DamageData.m_iSide = GetFlip;
-
-            other.SendMessage("GetDamage" , _DamageData );
-            MainGameHost.MonoRef.UpdateComboByPlusValue(1);
-        }
-    }
+//    public override void OnTriggerEnter2D(Collider2D other)
+//    {      
+//        if (m_HitCase.m_isEnabled == false) return;
+//        base.OnTriggerEnter2D( other );
+//    }
 
     public override void GetDamage (DamageClass _Data)
     {
-        if (m_CharaterParameter.m_isDeath) return;
-
-        //當角色防禦且面對攻擊來的方向
-        if (m_DefenceCase.IsDefence && (GetFlip != _Data.m_iSide))
-        {
-            //Do 防禦成功
-            if ( _Data.m_ForceV2 != Vector2.zero ) 
-                m_Rigidbody2D.velocity = _Data.m_ForceV2;
-        }
-        else
-        {
-            //Do 受到傷害
-            ProcessHealthPoint( - _Data.m_iDamage );
-            ProcessGetDamageEffect(_Data.m_iSide);
-            StartCoroutine(DamageEffect());
-
-            CreateDamagePoint(transform , _Data.m_iDamage);
-
-            if ( _Data.m_ForceV2 != Vector2.zero )
-            {
-                if ( m_Rigidbody2D != null)
-                    m_Rigidbody2D.velocity = _Data.m_ForceV2;
-                else if (GetComponent<Door>() == null)
-                {
-                    Debug.LogError(gameObject.name + "  Don't have rigibody2D!!!");
-                }
-            }
-        }
-    }
-
-
+        base.GetDamage(_Data);
+    }        
 
     public SpriteRenderer m_CharacterRenderer;
     private Material m_CharacterMaterial;

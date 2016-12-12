@@ -16,6 +16,10 @@ public class SystemBase : MonoBehaviour {
 
     }
 
+    public virtual void SysFixedUpdate () {
+
+    }
+
     public virtual void SysEnd () {
 
     }

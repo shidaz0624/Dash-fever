@@ -21,9 +21,13 @@ public class PlayerParameterGUI : SystemBase {
 
     public HeroUI m_HeroUI = new HeroUI();
 
-    public void InitUISystem()
+    public override void Init ()
     {
-    
+    }
+
+
+    public override void SysUpdate ()
+    {
     }
 
     public void UpdateHeroHP(int _iHP)
@@ -47,18 +51,18 @@ public class PlayerParameterGUI : SystemBase {
     }
 
 
-    private void Start()
-    {
-//        InvokeRepeating("CreatEnemy" , 1f , 2f);
-    }
-    public GameObject m_Enemy = null;
-    public void CreatEnemy()
-    {
-        Vector3 _v3 = new Vector3( UnityEngine.Random.Range( -30 , 30  ) , 0 , 0 );
-        GameObject _e = Instantiate( m_Enemy );
-
-        _e.transform.localPosition = _v3;
-    }
-
-
+//    private void Start()
+//    {
+////        InvokeRepeating("CreatEnemy" , 1f , 2f);
+//    }
+//    public GameObject m_Enemy = null;
+//    public void CreatEnemy()
+//    {
+//        Vector3 _v3 = new Vector3( UnityEngine.Random.Range( -30 , 30  ) , 0 , 0 );
+//        GameObject _e = Instantiate( m_Enemy );
+//
+//        _e.transform.localPosition = _v3;
+//    }
+//
+//
 }

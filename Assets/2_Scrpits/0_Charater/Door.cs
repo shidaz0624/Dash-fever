@@ -20,7 +20,7 @@ public class Door : CharaterBase {
     }
     //    int i = 1;
     // Update is called once per frame
-    protected override void Update ()
+    public override void MonoUpdate ()
     {
         if (m_CharaterParameter.m_isDeath)
         {
@@ -40,8 +40,8 @@ public class Door : CharaterBase {
     {        
     }        
 
-    void OnTriggerEnter2D(Collider2D other)
+    public override void OnTriggerEnter2D(Collider2D other)
     {                
-        
+        base.OnTriggerEnter2D( other );
     }
 }

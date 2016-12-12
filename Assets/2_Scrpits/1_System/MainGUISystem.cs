@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MainGUISystem : MonoBehaviour {
+public class MainGUISystem : SystemBase {
 
 //    private static MainGUISystem MonoRef = null;
 //    public static MainGUISystem m_MonoRef{ get{ return MonoRef;} }
@@ -9,15 +9,18 @@ public class MainGUISystem : MonoBehaviour {
     public PlayerParameterGUI   m_PlayerParameterGUI    = null; //角色面板 UI
     public ComboSystem          m_ComboSys              = null; //Combo系統 UI
 
-    public void InitUISys()
+
+
+    public override void Init()
     {
 //        MonoRef = this;
         m_ComboSys.Init();
     }
 
-    public void SysUpdate()
+    public override void SysUpdate()
     {
         m_ComboSys.SysUpdate();
+        m_PlayerParameterGUI.SysUpdate();
     }
 
     #region Hero Parameter GUI
