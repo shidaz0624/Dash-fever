@@ -5,7 +5,7 @@ using System.Collections;
 public enum AIMode
 {
     NONE,
-    PATROL,         //巡邏
+    WANDER,         //遊蕩
     ATTACK,         //攻擊
     CAUTION,        //警戒
     AVOID,          //躲避
@@ -19,6 +19,7 @@ public class Enemy : CharaterBase {
     public Transform m_RightTag;
     public Transform m_LeftTag;
     public Transform m_Target;
+//    public 
 
     [Header("牆壁偵測距離")]
     public float m_fWallCheckDistance = 2f;
@@ -32,6 +33,10 @@ public class Enemy : CharaterBase {
     public float m_fAttackRate = 1f;
     private float m_fAttackTimer = 0f;
 
+    private float m_fTest = 2f;
+    private float m_fTestTimer = 0f;
+
+    #region Mono Life cycle
     protected void Awake()
     {
         m_Dash.m_DashClass.OnDash       += OnDash;
@@ -46,14 +51,14 @@ public class Enemy : CharaterBase {
     protected override void Start ()
     {
         base.Start ();
-        m_AIMode = AIMode.PATROL;
-        m_Target = GameObject.FindGameObjectWithTag("Player").transform;
+        m_AIMode = AIMode.WANDER;
+//        m_Target = GameObject.FindGameObjectWithTag("Player").transform;
         if (m_Target == null)
             enabled = false;
 
         FlipTrigger();
     }
-        
+    #endregion
     public override void MonoUpdate ()
     {
         base.MonoUpdate ();
@@ -69,31 +74,37 @@ public class Enemy : CharaterBase {
             //往目標移動
             //保持距離 或 進行攻擊，防禦
             m_AIMode = AIMode.CAUTION;
-
-
         }
         else
         {
             //在視野外
             //持續巡邏
-            m_AIMode = AIMode.PATROL;
-            _fHorizontal *= .5f;
-            Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
-            Move(_v2);
+            m_AIMode = AIMode.WANDER;
         }            
 
-        if (WallChecker || FlipChecker)
+        if (IsCloseWall || IsFaceToTarget == false)
             FlipTrigger();
 
-        if (m_AIMode == AIMode.CAUTION)
-        {
+        if (m_AIMode == AIMode.CAUTION)//警戒
+        {            
             if ( Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMax  )
-            {
+            {//若 距離 < 警戒最大距離                
                 if (Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMin )
                 {
-                    _fHorizontal *= -1f;
-                    Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
-                    Move(_v2);
+                    m_fTestTimer += Time.deltaTime;
+
+                    if (m_fTestTimer < m_fTest)
+                    {
+                        _fHorizontal *= -1f;
+                        Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+                        Move(_v2);
+                    }
+                    else
+                    {
+                        m_fTestTimer = 0f;
+                        Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip  , m_Dash.m_DashForceV2.y);
+                        m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
+                    }
                 }
                 else
                 {
@@ -110,9 +121,16 @@ public class Enemy : CharaterBase {
             }
             else
             {          
+                //若 距離 > 警戒最大距離
                 Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
                 Move(_v2);
             }
+        }
+        else if (m_AIMode == AIMode.WANDER)//巡邏
+        {
+            _fHorizontal *= .5f;
+            Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+            Move(_v2);
         }
 
 
@@ -164,7 +182,7 @@ public class Enemy : CharaterBase {
     /// <summary>
     /// 取得是否背對目標物
     /// </summary>
-    private bool FlipChecker
+    private bool IsFaceToTarget
     {
         get
         {
@@ -173,15 +191,15 @@ public class Enemy : CharaterBase {
                 , m_Target.transform.position - transform.position);
 
 
-            bool _isNeedToFlip = ( _fDot > 0 != GetFlip > 0)? true : false;
-            return _isNeedToFlip;
+            bool _isFaceToTarget = ( _fDot > 0 != GetFlip > 0)? false : true;
+            return _isFaceToTarget;
         }
     }
 
     /// <summary>
     /// 取得是否太接近牆壁
     /// </summary>
-    private bool WallChecker
+    private bool IsCloseWall
     {
         get
         {

@@ -186,6 +186,16 @@ public class CharaterBase : MonoBehaviour {
     public virtual void GetDamage( DamageClass _Data )
     {
         ProcessGetDamageEffect( _Data.m_iSide );
+
+        if (_Data.m_ForceV2 != Vector2.zero)
+        {
+            SetVelocity( _Data.m_ForceV2 );
+        }
+    }
+
+    protected void SetVelocity( Vector2 _VectorV2 )
+    {
+        m_Rigidbody2D.velocity = _VectorV2;
     }
 
     public virtual void OnTriggerEnter2D(Collider2D _Other)
