@@ -11,7 +11,7 @@ public class CharaterBattler : SystemBase
 
     public void PassDamageClassToCharater( CharaterBase _From , DamageClass _DamageClass , CharaterBase _To )
     {        
-        if (_To.m_CharaterParameter.m_isDeath) return;
+        if (_To.m_CharaterParameter.GetIsDeath) return;
 
         string _sToTag = _To.gameObject.tag;
         switch (_sToTag)
@@ -46,7 +46,7 @@ public class CharaterBattler : SystemBase
             //Do 受到傷害
             _To.ProcessHealthPoint( - _DamageClass.m_iDamage );
 
-            if ( _To.m_CharaterParameter.m_fHealthPoint <= 0 )
+            if ( _To.m_CharaterParameter.GetHealthPoint <= 0 )
                 _To.PlayDeathEffect();
             else
                 _To.GetDamage(_DamageClass);

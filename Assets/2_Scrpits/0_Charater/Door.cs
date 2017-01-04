@@ -22,7 +22,7 @@ public class Door : CharaterBase {
     // Update is called once per frame
     public override void MonoUpdate ()
     {
-        if (m_CharaterParameter.m_isDeath)
+        if (m_CharaterParameter.GetIsDeath)
         {
 //            DeathEffect();
         }

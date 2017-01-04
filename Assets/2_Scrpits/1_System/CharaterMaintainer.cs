@@ -16,7 +16,7 @@ public class CharaterMaintainer : SystemBase {
 
     public override void Init()
     {
-        Debug.Log(" == CharaterMaintainer Init == ");
+        Debug.Log(" == CharaterMaintainer Init == " , this);
         m_Mono = this;
         m_CharaterUpdater = gameObject.AddComponent< CharaterUpdater >();
         m_CharaterUpdater.Init();

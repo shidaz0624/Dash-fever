@@ -33,8 +33,8 @@ public class Enemy : CharaterBase {
     public float m_fAttackRate = 1f;
     private float m_fAttackTimer = 0f;
 
-    private float m_fTest = 2f;
-    private float m_fTestTimer = 0f;
+    private float m_fEscapeTime = 2f;   //角色卡點掙脫時間
+    private float m_fEscapeTimer = 0f;  //角色卡點掙脫計時器
 
     #region Mono Life cycle
     protected void Awake()
@@ -62,13 +62,13 @@ public class Enemy : CharaterBase {
     public override void MonoUpdate ()
     {
         base.MonoUpdate ();
-        if (m_CharaterParameter.m_isDeath) return;
+        if (m_CharaterParameter.GetIsDeath) return;
 
-        float _fHorizontal = 10f * Time.deltaTime;
+        float _fHorizontal = base.m_CharaterParameter.GetMoveSpeed * Time.deltaTime;
 
         //先判斷目標是否在視野內
         float _fDisToTarget = Vector3.Distance(transform.position , m_Target.transform.position);
-        if (_fDisToTarget <= m_CharaterParameter.m_fViewDistance)
+        if (_fDisToTarget <= m_CharaterParameter.GetViewDistance)
         {
             //在視野內
             //往目標移動
@@ -91,9 +91,9 @@ public class Enemy : CharaterBase {
             {//若 距離 < 警戒最大距離                
                 if (Mathf.Abs ( Vector3.Distance ( transform.position , m_Target.position ) )  < m_fKeepDistanceToTargetMin )
                 {
-                    m_fTestTimer += Time.deltaTime;
+                    m_fEscapeTimer += Time.deltaTime;
 
-                    if (m_fTestTimer < m_fTest)
+                    if (m_fEscapeTimer < m_fEscapeTime)
                     {
                         _fHorizontal *= -1f;
                         Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
@@ -101,7 +101,8 @@ public class Enemy : CharaterBase {
                     }
                     else
                     {
-                        m_fTestTimer = 0f;
+                        if (IsFaceToTarget == false) FlipTrigger();
+                        m_fEscapeTimer = 0f;
                         Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip  , m_Dash.m_DashForceV2.y);
                         m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
                     }
@@ -190,7 +191,6 @@ public class Enemy : CharaterBase {
             float _fDot = Vector3.Dot(transform.TransformDirection(Vector3.right)
                 , m_Target.transform.position - transform.position);
 
-
             bool _isFaceToTarget = ( _fDot > 0 != GetFlip > 0)? false : true;
             return _isFaceToTarget;
         }
@@ -233,3 +233,5 @@ public class Enemy : CharaterBase {
         SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
     }        
 }
+
+

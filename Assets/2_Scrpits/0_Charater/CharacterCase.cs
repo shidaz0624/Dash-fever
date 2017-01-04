@@ -71,14 +71,21 @@ public class HitCase
 /// </summary>
 [System.Serializable]
 public class CharaterParameter
-{
-    public  float   m_fHealthPoint  = 0f;
-    public  float   m_fActionPoint  = 0f;
-    public  int     m_iJumpPower    = 1300;
-    public  bool    m_isDeath       = false;
-    public  float   m_fViewDistance = 0f;
+{    
+    [SerializeField] private float   m_fHealthPoint  = 0f;
+    [SerializeField] private float   m_fActionPoint  = 0f;
+    [SerializeField] private int     m_iJumpPower    = 0;
+    [SerializeField] private float   m_fViewDistance = 0f;
+    [SerializeField] private float   m_fMoveSpeed    = 0f;
+    private bool    m_isDeath       = false;
 
-
+    public  bool    SetIsDeath      {set{m_isDeath = value;     }}
+    public  bool    GetIsDeath      {get{return m_isDeath;      }}
+    public  float   GetHealthPoint  {get{return m_fHealthPoint; }}
+    public  float   GetActionPoint  {get{return m_fActionPoint; }}
+    public  int     GetJumpPower    {get{return m_iJumpPower;   }}
+    public  float   GetViewDistance {get{return m_fViewDistance;}}
+    public  float   GetMoveSpeed    {get{return m_fMoveSpeed;   }}
 
     public void SetHPAndAP(float _fHP , float _fAP)
     {

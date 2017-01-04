@@ -47,18 +47,26 @@ public class CharaterBase : MonoBehaviour {
             m_Animator.SetBool("isGround" , m_Ground.m_isGround);
 
         //若角色被設定死亡，則播放死亡效果
-        if (m_CharaterParameter.m_isDeath)
+        if (m_CharaterParameter.GetIsDeath)
             DeathEffect();
 
 	}
 
+    protected void Velocity(Vector2 _VectorV2)
+    {
+        if (m_Rigidbody2D != null)
+            m_Rigidbody2D.velocity = _VectorV2;
+        else
+            Debug.LogWarning("Rigibody2D is null",this);
+    }
+
     public void PlayDeathEffect()
     {        
-        m_CharaterParameter.m_isDeath = true;
+        m_CharaterParameter.SetIsDeath = true;
         if (m_EffectCase.m_DeathParticle != null)
             m_EffectCase.m_DeathParticle.Play();
         else
-            Debug.LogError("!! " + gameObject.name + " m_DeathParticle is null ");
+            Debug.LogWarning("!!m_DeathParticle is null!!",this);
     }
 
     private void DeathEffect()
@@ -97,7 +105,7 @@ public class CharaterBase : MonoBehaviour {
     /// </summary>
     protected void Jump()
     {
-        m_Rigidbody2D.AddForce( new Vector2( 0 , m_CharaterParameter.m_iJumpPower));
+        m_Rigidbody2D.AddForce( new Vector2( 0 , m_CharaterParameter.GetJumpPower));
     }
 
     /// <summary>
@@ -163,7 +171,7 @@ public class CharaterBase : MonoBehaviour {
     /// </summary>
     public void ProcessHealthPoint(int _iDelta)
     {
-        m_CharaterParameter.m_fHealthPoint += _iDelta;
+        m_CharaterParameter.SetHPByDelta ( _iDelta );
     }
 
     public void ProcessGetDamageEffect(int _iSide)
@@ -195,7 +203,7 @@ public class CharaterBase : MonoBehaviour {
 
     protected void SetVelocity( Vector2 _VectorV2 )
     {
-        m_Rigidbody2D.velocity = _VectorV2;
+        this.Velocity( _VectorV2 );
     }
 
     public virtual void OnTriggerEnter2D(Collider2D _Other)

@@ -3,14 +3,21 @@ using System.Collections;
 
 public class Hero : CharaterBase {
 
+    #region INPUT
+    private const KeyCode INPUT_JUMP    = KeyCode.Space;
+    private const KeyCode INPUT_AVOID   = KeyCode.E;
+    private const KeyCode INPUT_DASH    = KeyCode.Return;
+    private const KeyCode INPUT_DEFENCE = KeyCode.LeftShift;
+    #endregion
+
     //Dash Calss
     public DashCase m_Dash = new DashCase();
     //攝影機動畫效果
     public Animator m_CameraEffect = null;
     //按住Enter的持續時間
-    private float m_HoldTimer = 0f;
+    private float m_DashHoldTimer = 0f;
     //按住ENTER的粒子效果
-    public ParticleSystem m_HoldParticle = null;
+    public ParticleSystem m_DashHoldParticle = null;
 
     //輸入進來的橫向位移量
     private float m_fOriginHorozontal = 0f; 
@@ -45,7 +52,7 @@ public class Hero : CharaterBase {
 
         //將HP及AP顯示在GUI上
         MainGameHost.MonoRef.UpdateHeroHPAndAP
-            ( (int)m_CharaterParameter.m_fHealthPoint , (int)m_CharaterParameter.m_fActionPoint );
+        ( (int)m_CharaterParameter.GetHealthPoint , (int)m_CharaterParameter.GetActionPoint );
     }        
 
     private void OnDisable()
@@ -80,13 +87,13 @@ public class Hero : CharaterBase {
         //取得目前輸入的橫向位移量
         m_fOriginHorozontal = Input.GetAxis("Horizontal");
         //換算要使用的位移量
-        m_fHorizontal = m_fOriginHorozontal * Time.deltaTime * 15;
+        m_fHorizontal = m_fOriginHorozontal * base.m_CharaterParameter.GetMoveSpeed * Time.deltaTime;
 
         //用輸入的位移量判斷是否需要轉向
         base.ProcessFlip(m_fHorizontal);
 
         //取得是否按下防禦鍵
-        bool _isKeyDefence = Input.GetKey(KeyCode.LeftShift);
+        bool _isKeyDefence = Input.GetKey( INPUT_DEFENCE );
 
         if (_isKeyDefence)
         {
@@ -114,49 +121,72 @@ public class Hero : CharaterBase {
         m_Animator.SetFloat( "fVertical" , m_Rigidbody2D.velocity.y);
 
         //處理角色是否觸發跳躍
-        if (Input.GetKeyDown(KeyCode.Space) && m_Ground.m_isGround)
+        if (Input.GetKeyDown( INPUT_JUMP ) && m_Ground.m_isGround)
         {
             base.Jump();
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown( INPUT_AVOID ))
         {
             TriggerDash( new Vector2(-1f,0f) );
+            ShowDashShadow();
+            ShowDashSmoke();
         }
 
-        //當按下Return
-        if (Input.GetKey(KeyCode.Return))
+        //當按下 Dash
+        if (Input.GetKey( INPUT_DASH ))
         {
-            //計算按下的總時間
-            m_HoldTimer += Time.deltaTime * 1.5f;
-            //最小1f，最大1.5f
-            m_HoldTimer = Mathf.Clamp(m_HoldTimer , 1f , 1.5f);
-            if (!m_HoldParticle.isPlaying)
-                m_HoldParticle.Play();
+            this.KeyPressDashKey();
         }
-        else if (m_HoldParticle.isPlaying)
+        else 
         {
-            m_HoldParticle.Stop();
-        }            
+            this.KeyReleaseDashKey();
+        }
 
-        //Return起來時
-        if (Input.GetKeyUp(KeyCode.Return))
+        // Dash 起來時
+        if (Input.GetKeyUp( INPUT_DASH ))
         {
-            //當角色行動點數 >= 20時
-            if (m_CharaterParameter.m_fActionPoint >= 20)
-            { 
-                //觸發Dash
-                TriggerDash();
-                //行動點數減20
-                m_CharaterParameter.m_fActionPoint -= 20;
+            this.KeyUpDashKey();   
+        }
+    }
 
-                //若按下Return時間超過1f * 1.5f時觸發攝影機震動效果
-                if (m_HoldTimer == 1.5f)
-                    m_CameraEffect.SetTrigger("Shake");
-            }
-            m_HoldTimer = 0f;
-        }            
-    }   
+    private void KeyPressDashKey()
+    {
+        //計算按下的總時間
+        m_DashHoldTimer += Time.deltaTime * 1.5f;
+        //最小1f，最大1.5f
+        m_DashHoldTimer = Mathf.Clamp(m_DashHoldTimer , 1f , 1.5f);
+        if (!m_DashHoldParticle.isPlaying)
+            m_DashHoldParticle.Play();
+    }
+    private void KeyReleaseDashKey()
+    {
+        if (m_DashHoldParticle.isPlaying)
+            m_DashHoldParticle.Stop();
+    }
+    private void KeyUpDashKey()
+    {
+        //當角色行動點數 >= 20時
+        if (m_CharaterParameter.GetActionPoint >= 20)
+        { 
+            //觸發Dash
+            TriggerDash();
+            SetHitCase( 
+                _isEnabled: true ,
+                _iDamage:  1 ,
+                _ForceV2: m_Dash.m_DashForceV2
+            );
+            ShowDashShadow();
+            ShowDashSmoke();
+            //行動點數減20
+            m_CharaterParameter.SetAPByDelta( -20 );
+
+            //若按下Return時間超過1f * 1.5f時觸發攝影機震動效果
+            if (m_DashHoldTimer == 1.5f)
+                m_CameraEffect.SetTrigger("Shake");
+        }
+        m_DashHoldTimer = 0f;
+    }
 
     /// <summary>
     /// 觸發Dash
@@ -166,19 +196,17 @@ public class Hero : CharaterBase {
         Vector2 _DashV2;
         //計算這次要觸發Dash的值
         if (_Force == default(Vector2))
-            _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip * (m_HoldTimer + 1f ) , m_Dash.m_DashForceV2.y);
+            _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip * (m_DashHoldTimer + 1f ) , m_Dash.m_DashForceV2.y);
         else
-            _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip * 2 , m_Dash.m_DashForceV2.y);
+            _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip , m_Dash.m_DashForceV2.y);
+        
         if (_Force != default(Vector2))
         {
             _DashV2.x = _DashV2.x * _Force.x ;
             _DashV2.y = _DashV2.y * _Force.y ;
-        }
-        m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
-        SetHitCase(true ,  1 , m_Dash.m_DashForceV2);
+        }                
 
-        ShowDashShadow();
-        ShowDashSmoke();
+        m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);               
     }
 
     /// <summary>
@@ -203,15 +231,9 @@ public class Hero : CharaterBase {
         if (_DashSmokeEffect != null)
         {
             _DashSmokeEffect.SetActive(true);
-            _DashSmokeEffect.GetComponent<DashSmokeEffect>().StartEffect(gameObject.transform , (GetFlip == 1)? true : false );
+            _DashSmokeEffect.GetComponent<DashSmokeEffect>().StartEffect(gameObject.transform , (GetFlip == 1)? true : false );           
         }
-    }
-
-//    public override void OnTriggerEnter2D(Collider2D other)
-//    {      
-//        if (m_HitCase.m_isEnabled == false) return;
-//        base.OnTriggerEnter2D( other );
-//    }
+    }        
 
     public override void GetDamage (DamageClass _Data)
     {

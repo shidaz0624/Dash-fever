@@ -19,11 +19,11 @@ public class DashSmokeEffect : MonoBehaviour {
         }
     }
 
-    public void StartEffect(Transform _Tf , bool _iRightSide)
+    public void StartEffect(Transform _Tf , bool _iCharaterFaceRight)
     {
-        Vector3 _FixV3 = (_iRightSide)? new Vector3(-3,0,0) : new Vector3(3,0,0);
+        Vector3 _FixV3 = (_iCharaterFaceRight)? new Vector3(-3,0,0) : new Vector3(3,0,0);
         gameObject.transform.position = _Tf.position + _FixV3;
-        m_SpriteRenender.flipX = (_iRightSide)? true : false;
+        m_SpriteRenender.flipX = (_iCharaterFaceRight)? true : false;
         m_Animator.Play("SmokeStart");
         enabled = true;
     }

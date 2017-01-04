@@ -17,7 +17,7 @@ public class CharaterUpdater : SystemBase
 
     public override void Init()
     {
-        Debug.Log(" == CharaterUpdater Init ==");
+        Debug.Log(" == CharaterUpdater Init ==" , this);
     }
         
     public void SysUpdate (List<CharaterBase> _Charater)

@@ -24,6 +24,7 @@ public class MainGameHost : MonoBehaviour {
         //======== UI 系統 ========
         m_MainGUISystem.SysUpdate();
         //========================
+
         //======== 角色 系統 ========
         m_CharaterMaintainer.SysUpdate();
         //========================
@@ -36,8 +37,8 @@ public class MainGameHost : MonoBehaviour {
 
     void OnDestory()
     {
+        Debug.Log("== MainGameHost OnDestory ==" , this );
         m_MainGUISystem = null;
-        Debug.Log("== MainGameHost OnDestory ==" );
     }
 
     private void InitAllSystem()
