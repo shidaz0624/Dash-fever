@@ -198,9 +198,17 @@ public class CharaterBase : MonoBehaviour {
         if (_Data.m_ForceV2 != Vector2.zero)
         {
             SetVelocity( _Data.m_ForceV2 );
-        }
+        }            
     }
 
+    public void SetCanHurt(bool _isCanHurt)
+    {
+        m_CharaterParameter.SetIsCanHurt = _isCanHurt;
+    }
+
+    /// <summary>
+    /// 設定角色目前的速度.
+    /// </summary>
     protected void SetVelocity( Vector2 _VectorV2 )
     {
         this.Velocity( _VectorV2 );

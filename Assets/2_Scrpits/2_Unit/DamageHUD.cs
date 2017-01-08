@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class DamageHUD : MonoBehaviour {
 
     #region const 
-    private Vector3 RANDOM_POS_V3{ get{return new Vector3(Random.Range(0f,1.5f),Random.Range(0f,3f),0f);} }
+    private Vector3 RANDOM_POS_V3{ get{return new Vector3(Random.Range(0f,1.5f),/*Random.Range(0f,3f)*/ 0f,0f);} }
     #endregion
 
     public Animator m_Animator = null;

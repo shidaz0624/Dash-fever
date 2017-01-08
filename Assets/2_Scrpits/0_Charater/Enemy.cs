@@ -30,7 +30,7 @@ public class Enemy : CharaterBase {
     [Header("警戒時保持與目標的最近距離")]
     public float m_fKeepDistanceToTargetMin = 5f;
 
-    public float m_fAttackRate = 1f;
+    public float m_fAttackRate = 5f;
     private float m_fAttackTimer = 0f;
 
     private float m_fEscapeTime = 2f;   //角色卡點掙脫時間
@@ -66,6 +66,7 @@ public class Enemy : CharaterBase {
 
         float _fHorizontal = base.m_CharaterParameter.GetMoveSpeed * Time.deltaTime;
 
+
         //先判斷目標是否在視野內
         float _fDisToTarget = Vector3.Distance(transform.position , m_Target.transform.position);
         if (_fDisToTarget <= m_CharaterParameter.GetViewDistance)
@@ -96,14 +97,14 @@ public class Enemy : CharaterBase {
                     if (m_fEscapeTimer < m_fEscapeTime)
                     {
                         _fHorizontal *= -1f;
-                        Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
-                        Move(_v2);
+//                        Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+//                        Move(_v2);
                     }
                     else
                     {
-                        if (IsFaceToTarget == false) FlipTrigger();
+//                        if (IsFaceToTarget == false) FlipTrigger();
                         m_fEscapeTimer = 0f;
-                        Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * GetFlip  , m_Dash.m_DashForceV2.y);
+                        Vector2 _DashV2 = new Vector2( m_Dash.m_DashForceV2.x * - GetFlip  , m_Dash.m_DashForceV2.y);
                         m_Dash.m_DashClass.SetDashValue(_DashV2 ,m_Dash.m_fTime);
                     }
                 }
@@ -117,25 +118,31 @@ public class Enemy : CharaterBase {
                         SetHitCase(true ,  1 , m_Dash.m_DashForceV2);  
                         m_fAttackTimer = 0f;
                         m_fAttackRate = Random.Range(0.2f,1f);
+                        _fHorizontal = 0f;
                     }
                 }
             }
             else
             {          
                 //若 距離 > 警戒最大距離
-                Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
-                Move(_v2);
+//                Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+//                Move(_v2);
             }
         }
         else if (m_AIMode == AIMode.WANDER)//巡邏
         {
             _fHorizontal *= .5f;
-            Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
-            Move(_v2);
         }
 
+//        _fHorizontal = 0f;
 
+        Vector2 _v2 = new Vector2( _fHorizontal * GetFlip , 0);
+        Move(_v2);
 
+        if ( m_Ground.IsGround )
+            m_Animator.SetFloat( "fHorizontal" , Mathf.Abs( _fHorizontal ));
+        else
+            m_Animator.SetFloat( "fHorizontal" , 0);
 
 
 //        bool _isDefence = false;

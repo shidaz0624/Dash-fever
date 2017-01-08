@@ -8,7 +8,7 @@ public class MainGameHost : MonoBehaviour {
 
     public CharaterMaintainer m_CharaterMaintainer = null;
     public MainGUISystem m_MainGUISystem = null;
-
+    public StageSystem m_StageSystem = null;
 
     void Awake()
     {
@@ -21,6 +21,10 @@ public class MainGameHost : MonoBehaviour {
     /// </summary>
 	void Update () 
     {
+        //======== 遊戲 系統 ========
+        
+        //
+
         //======== UI 系統 ========
         m_MainGUISystem.SysUpdate();
         //========================
@@ -28,6 +32,7 @@ public class MainGameHost : MonoBehaviour {
         //======== 角色 系統 ========
         m_CharaterMaintainer.SysUpdate();
         //========================
+
 	}
 
     void FixedUpdate () 

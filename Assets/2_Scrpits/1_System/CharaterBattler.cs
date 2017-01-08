@@ -43,18 +43,25 @@ public class CharaterBattler : SystemBase
         }
         else
         {
-            //Do 受到傷害
-            _To.ProcessHealthPoint( - _DamageClass.m_iDamage );
+            if (_To.m_CharaterParameter.GetCanHurt)
+            {
+                //Do 受到傷害
+                _To.ProcessHealthPoint( - _DamageClass.m_iDamage );
 
-            if ( _To.m_CharaterParameter.GetHealthPoint <= 0 )
-                _To.PlayDeathEffect();
+                if ( _To.m_CharaterParameter.GetHealthPoint <= 0 )
+                    _To.PlayDeathEffect();
+                else
+                    _To.GetDamage(_DamageClass);
+
+                CreateDamagePoint(_To.transform , _DamageClass.m_iDamage);
+
+                if (_From.tag == TAG_PLAYER)
+                    this.UpdateComboByPlusValue( 1 );
+            }
             else
-                _To.GetDamage(_DamageClass);
-
-            CreateDamagePoint(_To.transform , _DamageClass.m_iDamage);
-
-            if (_From.tag == TAG_PLAYER)
-                this.UpdateComboByPlusValue( 1 );
+            {
+                
+            }
         }
     }
 

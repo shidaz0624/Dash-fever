@@ -10,6 +10,10 @@ public class Hero : CharaterBase {
     private const KeyCode INPUT_DEFENCE = KeyCode.LeftShift;
     #endregion
 
+    #region Const Value
+    private const float FLASH_WHITE_INTERVAL = 0.05f;
+    #endregion
+
     //Dash Calss
     public DashCase m_Dash = new DashCase();
     //攝影機動畫效果
@@ -23,6 +27,9 @@ public class Hero : CharaterBase {
     private float m_fOriginHorozontal = 0f; 
     //計算後的橫向位移量
     private float m_fHorizontal = 0f;
+
+    public SpriteRenderer m_CharacterRenderer;
+    private Material m_CharacterMaterial;
 
     #region MonoBehaviour
     protected void Awake()
@@ -43,16 +50,19 @@ public class Hero : CharaterBase {
         //更新Dash
         m_Dash.m_DashClass.Update();
 
-        //處理玩家輸入
-        this.ProcessInput();
+        if (m_CharaterParameter.GetIsDeath == false)
+        {
+            //處理玩家輸入
+            this.ProcessInput();
 
-        //計算現在的HP及AP
-        m_CharaterParameter.SetHPAndAPByDelta
-        ( m_RecoverParameter.GetHPRecoverValue , m_RecoverParameter.GetAPRecoverValue );
+            //計算現在的HP及AP
+            m_CharaterParameter.SetHPAndAPByDelta
+            ( m_RecoverParameter.GetHPRecoverValue , m_RecoverParameter.GetAPRecoverValue );
 
-        //將HP及AP顯示在GUI上
-        MainGameHost.MonoRef.UpdateHeroHPAndAP
-        ( (int)m_CharaterParameter.GetHealthPoint , (int)m_CharaterParameter.GetActionPoint );
+            //將HP及AP顯示在GUI上
+            MainGameHost.MonoRef.UpdateHeroHPAndAP
+            ( (int)m_CharaterParameter.GetHealthPoint , (int)m_CharaterParameter.GetActionPoint );
+        }
     }        
 
     private void OnDisable()
@@ -83,7 +93,7 @@ public class Hero : CharaterBase {
     #endregion
 
     private void ProcessInput()
-    {
+    {        
         //取得目前輸入的橫向位移量
         m_fOriginHorozontal = Input.GetAxis("Horizontal");
         //換算要使用的位移量
@@ -238,21 +248,28 @@ public class Hero : CharaterBase {
     public override void GetDamage (DamageClass _Data)
     {
         base.GetDamage(_Data);
+        StartCoroutine( FlashWhite() );
+        StartCoroutine( SetCanNotHurt( 2f ) );
     }        
-
-    public SpriteRenderer m_CharacterRenderer;
-    private Material m_CharacterMaterial;
-    private IEnumerator DamageEffect()
+        
+    private IEnumerator FlashWhite()
     {
         if (m_CharacterMaterial == null)
             m_CharacterMaterial = m_CharacterRenderer.material;            
 
         for (int i = 0 ; i < 4 ; i++)
         {
-            yield return new WaitForSeconds(0.05f);
-            m_CharacterMaterial.SetFloat("SingleColor" , 1f);    
-            yield return new WaitForSeconds(0.05f);
-            m_CharacterMaterial.SetFloat("SingleColor" , 0f);
+            yield return new WaitForSeconds( FLASH_WHITE_INTERVAL );
+            m_CharacterMaterial.SetFloat("SingleColor" , 1f);  // White  
+            yield return new WaitForSeconds( FLASH_WHITE_INTERVAL );
+            m_CharacterMaterial.SetFloat("SingleColor" , 0f);  // Origin 
         }
+    }
+
+    private IEnumerator SetCanNotHurt( float _fCanNotHurtTime )
+    {
+        base.SetCanHurt(_isCanHurt:false);
+        yield return new WaitForSeconds(_fCanNotHurtTime);
+        base.SetCanHurt(_isCanHurt:true);
     }
 }

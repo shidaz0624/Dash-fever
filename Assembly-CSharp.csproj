@@ -72,6 +72,7 @@
      <Compile Include="Assets\AIActionBase.cs" />
      <Compile Include="Assets\AIAction_Idle.cs" />
      <Compile Include="Assets\AIAction_Move.cs" />
+     <Compile Include="Assets\StageSystem.cs" />
      <None Include="Assets\3_Shader\SpriteFlashSingleColor.shader" />
      <None Include="Assets\3_Shader\SingleColorSprite.shader" />
      <None Include="Assets\備註.txt" />

@@ -78,8 +78,13 @@ public class CharaterParameter
     [SerializeField] private float   m_fViewDistance = 0f;
     [SerializeField] private float   m_fMoveSpeed    = 0f;
     private bool    m_isDeath       = false;
+    private bool    m_isCanHurt     = true;
 
+
+    public  bool    SetIsCanHurt    {set{m_isCanHurt = value;     }}
     public  bool    SetIsDeath      {set{m_isDeath = value;     }}
+
+    public  bool    GetCanHurt      {get{return m_isCanHurt;      }}
     public  bool    GetIsDeath      {get{return m_isDeath;      }}
     public  float   GetHealthPoint  {get{return m_fHealthPoint; }}
     public  float   GetActionPoint  {get{return m_fActionPoint; }}

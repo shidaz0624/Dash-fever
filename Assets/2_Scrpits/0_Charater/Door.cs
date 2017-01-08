@@ -26,7 +26,6 @@ public class Door : CharaterBase {
         {
 //            DeathEffect();
         }
-
     }   
 
 //    public override void GetDamage (int _iDamage, int _iSide, Vector2 _ForceV2)
@@ -36,9 +35,11 @@ public class Door : CharaterBase {
 //        ProcessGetDamageEffect(_iSide);
 //    }
 
-    void FixedUpdate()
-    {        
-    }        
+    public override void GetDamage (DamageClass _Data)
+    {
+        base.GetDamage (_Data);
+        m_Animator.SetTrigger("GetDamage");
+    }
 
     public override void OnTriggerEnter2D(Collider2D other)
     {                
